@@ -42,16 +42,27 @@ describe('blunder', () => {
     });
 
     it('should support the stack property', () => {
-        const err = new BlunderError();
-        expect(err.stack).to.be.a('string');
+        const err1 = new BlunderError();
+        expect(err1.stack).to.be.a('string');
 
         const err2 = new TestError();
         expect(err2.stack).to.be.a('string');
     });
 
-    it('should support the toString method', () => {
+    it('should support the stack property when captureStackTrace is not supported', () => {
+        const { captureStackTrace } = Error;
+        Reflect.deleteProperty(Error, 'captureStackTrace');
+        expect(Error.captureStackTrace).to.not.exist;
+        
         const err = new BlunderError();
-        expect(err.toString()).to.equal('BlunderError');
+        expect(err.stack).to.be.a('string');
+
+        Error.captureStackTrace = captureStackTrace;
+    });
+
+    it('should support the toString method', () => {
+        const err1 = new BlunderError();
+        expect(err1.toString()).to.equal('BlunderError');
 
         const err2 = new TestError();
         expect(err2.toString()).to.equal('TestError');
