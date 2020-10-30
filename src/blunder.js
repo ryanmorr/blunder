@@ -4,7 +4,7 @@ const doc = window.document;
 const docEl = doc.documentElement;
 
 export class BlunderError extends Error {
-    constructor(message) {
+    constructor(message, details = {}) {
         super(message);
         Object.defineProperty(this, 'name', {
             configurable: true,
@@ -47,5 +47,6 @@ export class BlunderError extends Error {
             this.metadata.heap = Math.round(performance.memory.usedJSHeapSize / 1048576);
             this.metadata.heapPercent = Math.round(performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit * 100);
         }
+        this.details = Object.assign({}, details);
     }
 }

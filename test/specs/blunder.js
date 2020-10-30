@@ -125,4 +125,21 @@ describe('blunder', () => {
             expect(metadata).to.have.property('heapPercent');
         }
     });
+
+    it('should support custom details', () => {
+        const err1 = new BlunderError();
+        expect(err1.details).to.be.an('object');
+        expect(err1.details).to.deep.equal({});
+
+        const err2 = new BlunderError('error message', {
+            foo: 1,
+            bar: 2,
+            baz: 3
+        });
+        expect(err2.details).to.deep.equal({
+            foo: 1,
+            bar: 2,
+            baz: 3
+        });
+    });
 });
