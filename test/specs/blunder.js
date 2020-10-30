@@ -70,4 +70,59 @@ describe('blunder', () => {
         const err3 = new SubTestError();
         expect(err3.toString()).to.equal('SubTestError');
     });
+
+    it('should support metadata', () => {
+        const err = new BlunderError();
+
+        expect(err.metadata).to.be.an('object');
+
+        const metadata = err.metadata;
+
+        expect(metadata).to.have.property('timestamp');
+        expect(metadata.timestamp).to.be.a('number');
+
+        expect(metadata).to.have.property('datetime');
+        expect(metadata.datetime).to.be.a('string');
+
+        expect(metadata).to.have.property('userAgent');
+        expect(metadata.userAgent).to.equal(navigator.userAgent);
+
+        expect(metadata).to.have.property('url');
+        expect(metadata.url).to.equal(document.location.href);
+
+        expect(metadata).to.have.property('referrer');
+        expect(metadata.referrer).to.equal(document.referrer);
+
+        expect(metadata).to.have.property('cookie');
+        expect(metadata.cookie).to.equal(navigator.cookieEnabled ? document.cookie : 'disabled');
+
+        expect(metadata).to.have.property('language');
+        expect(metadata.language).to.equal(navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || navigator.language);
+
+        expect(metadata).to.have.property('readyState');
+        expect(metadata.readyState).to.equal(document.readyState);
+
+        expect(metadata).to.have.property('viewportWidth');
+        expect(metadata.viewportWidth).to.equal(window.innerWidth);
+
+        expect(metadata).to.have.property('viewportHeight');
+        expect(metadata.viewportHeight).to.equal(window.innerHeight);
+
+        expect(metadata).to.have.property('orientation');
+        if (screen && screen.orientation && screen.orientation.type) {
+            expect(metadata.orientation).to.equal(screen.orientation.type);
+        } else {
+            expect(metadata.orientation).to.equal(document.documentElement.clientWidth > document.documentElement.clientHeight ? 'landscape' : 'portrait');
+        }
+
+        if (navigator.connection && navigator.connection.effectiveType) {
+            expect(metadata).to.have.property('connection');
+            expect(metadata.connection).to.equal(navigator.connection.effectiveType);
+        }
+
+        if (window.performance && window.performance.memory) {
+            expect(metadata).to.have.property('heap');
+            expect(metadata).to.have.property('heapPercent');
+        }
+    });
 });
