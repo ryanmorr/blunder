@@ -142,4 +142,33 @@ describe('BlunderError', () => {
             baz: 3
         });
     });
+
+    it('should cast normal error instance into BlunderError instance', () => {
+        const error = new Error('error message');
+
+        const blunderError = BlunderError.from(error);
+
+        expect(blunderError).to.be.an.instanceof(BlunderError);
+        expect(blunderError.name).to.equal('BlunderError');
+        expect(blunderError.message).to.equal(error.message);
+        expect(blunderError.stack).to.equal(error.stack);
+        expect(blunderError.originalError).to.equal(error);
+    });
+
+    it('should cast error message into BlunderError instance', () => {
+        const message = 'error message';
+
+        const blunderError = BlunderError.from(message);
+
+        expect(blunderError).to.be.an.instanceof(BlunderError);
+        expect(blunderError.message).to.equal(message);
+    });
+
+    it('should not cast object if it already is a BlunderError instance', () => {
+        const error = new BlunderError('error message');
+
+        const blunderError = BlunderError.from(error);
+
+        expect(blunderError).to.equal(error);
+    });
 });

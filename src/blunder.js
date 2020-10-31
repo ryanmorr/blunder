@@ -1,7 +1,8 @@
-const nav = window.navigator;
-const screen = window.screen;
 const doc = window.document;
 const docEl = doc.documentElement;
+const nav = window.navigator;
+const screen = window.screen;
+const perf = window.performance;
 
 export class BlunderError extends Error {
     constructor(message, details = {}) {
@@ -31,7 +32,7 @@ export class BlunderError extends Error {
             referrer: doc.referrer,
             cookie: nav.cookieEnabled ? doc.cookie : 'disabled',
             language: nav.browserLanguage || nav.systemLanguage || nav.userLanguage || nav.language,
-            readyState: document.readyState,
+            readyState: doc.readyState,
             viewportWidth: window.innerWidth,
             viewportHeight: window.innerHeight
         };
@@ -43,10 +44,23 @@ export class BlunderError extends Error {
         if (nav.connection && nav.connection.effectiveType) {
             this.metadata.connection = nav.connection.effectiveType;
         }
-        if (window.performance && window.performance.memory) {
-            this.metadata.heap = Math.round(performance.memory.usedJSHeapSize / 1048576);
-            this.metadata.heapPercent = Math.round(performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit * 100);
+        if (perf && perf.memory) {
+            this.metadata.heap = Math.round(perf.memory.usedJSHeapSize / 1048576);
+            this.metadata.heapPercent = Math.round(perf.memory.usedJSHeapSize / perf.memory.jsHeapSizeLimit * 100);
         }
         this.details = Object.assign({}, details);
+    }
+
+    static from(error) {
+        if (error instanceof BlunderError) {
+            return error;
+        }
+        if (error instanceof Error) {
+            const blunderError = new BlunderError(error.message);
+            blunderError.originalError = error;
+            blunderError.stack = error.stack;
+            return blunderError;
+        }
+        return new BlunderError(error);
     }
 }
