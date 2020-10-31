@@ -51,6 +51,17 @@ export class BlunderError extends Error {
         this.details = Object.assign({}, details);
     }
 
+    toJSON(key) {
+        const data = {
+            name: this.name,
+            message: this.message,
+            stack: this.stack,
+            details: this.details,
+            metadata: this.metadata
+        };
+        return typeof key === 'undefined' ? JSON.stringify(data) : data;
+    }
+
     static from(error) {
         if (error instanceof BlunderError) {
             return error;

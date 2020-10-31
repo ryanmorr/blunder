@@ -143,6 +143,29 @@ describe('BlunderError', () => {
         });
     });
 
+    it('should support converting a BlunderError into JSON', () => {
+        const error = new BlunderError('error message');
+
+        const data = {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            details: error.details,
+            metadata: error.metadata
+        };
+
+        const json1 = error.toJSON();
+        const json2 = JSON.stringify(error);
+
+        expect(json1).to.equal(json2);
+
+        expect(json1).to.be.a('string');
+        expect(JSON.parse(json1)).to.deep.equal(data);
+
+        expect(json2).to.be.a('string');
+        expect(JSON.parse(json2)).to.deep.equal(data);
+    });
+
     it('should cast normal error instance into BlunderError instance', () => {
         const error = new Error('error message');
 
