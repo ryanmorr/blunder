@@ -3,7 +3,7 @@ import { BlunderError } from '../../src/blunder';
 class TestError extends BlunderError {}
 class SubTestError extends TestError {}
 
-describe('blunder', () => {
+describe('BlunderError', () => {
     it('should support subsclassing BlunderError', () => {
         const err1 = new BlunderError();
         expect(err1).to.be.an.instanceof(Error);
