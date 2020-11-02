@@ -5,48 +5,48 @@ class SubTestError extends TestError {}
 
 describe('BlunderError', () => {
     it('should support subsclassing BlunderError', () => {
-        const err1 = new BlunderError();
-        expect(err1).to.be.an.instanceof(Error);
-        expect(err1).to.be.an.instanceof(BlunderError);
+        const error1 = new BlunderError();
+        expect(error1).to.be.an.instanceof(Error);
+        expect(error1).to.be.an.instanceof(BlunderError);
     
-        const err2 = new TestError();
-        expect(err2).to.be.an.instanceof(Error);
-        expect(err2).to.be.an.instanceof(BlunderError);
-        expect(err2).to.be.an.instanceof(TestError);
+        const error2 = new TestError();
+        expect(error2).to.be.an.instanceof(Error);
+        expect(error2).to.be.an.instanceof(BlunderError);
+        expect(error2).to.be.an.instanceof(TestError);
     
-        const err3 = new SubTestError();
-        expect(err3).to.be.an.instanceof(Error);
-        expect(err3).to.be.an.instanceof(BlunderError);
-        expect(err3).to.be.an.instanceof(TestError);
-        expect(err3).to.be.an.instanceof(SubTestError);
+        const error3 = new SubTestError();
+        expect(error3).to.be.an.instanceof(Error);
+        expect(error3).to.be.an.instanceof(BlunderError);
+        expect(error3).to.be.an.instanceof(TestError);
+        expect(error3).to.be.an.instanceof(SubTestError);
     });
 
     it('should support the name property', () => {
-        const err1 = new BlunderError();
-        expect(err1.name).to.equal('BlunderError');
-        expect(err1.propertyIsEnumerable('name')).to.equal(false);
+        const error1 = new BlunderError();
+        expect(error1.name).to.equal('BlunderError');
+        expect(error1.propertyIsEnumerable('name')).to.equal(false);
 
-        const err2 = new TestError();
-        expect(err2.name).to.equal('TestError');
-        expect(err2.propertyIsEnumerable('name')).to.equal(false);
+        const error2 = new TestError();
+        expect(error2.name).to.equal('TestError');
+        expect(error2.propertyIsEnumerable('name')).to.equal(false);
 
-        const err3 = new SubTestError();
-        expect(err3.name).to.equal('SubTestError');
-        expect(err3.propertyIsEnumerable('name')).to.equal(false);
+        const error3 = new SubTestError();
+        expect(error3.name).to.equal('SubTestError');
+        expect(error3.propertyIsEnumerable('name')).to.equal(false);
     });
 
     it('should support the message property', () => {
         const msg = 'an error occurred';
-        const err = new BlunderError(msg);
-        expect(err.message).to.equal(msg);
+        const error = new BlunderError(msg);
+        expect(error.message).to.equal(msg);
     });
 
     it('should support the stack property', () => {
-        const err1 = new BlunderError();
-        expect(err1.stack).to.be.a('string');
+        const error1 = new BlunderError();
+        expect(error1.stack).to.be.a('string');
 
-        const err2 = new TestError();
-        expect(err2.stack).to.be.a('string');
+        const error2 = new TestError();
+        expect(error2.stack).to.be.a('string');
     });
 
     it('should support the stack property when captureStackTrace is not supported', () => {
@@ -54,29 +54,29 @@ describe('BlunderError', () => {
         Reflect.deleteProperty(Error, 'captureStackTrace');
         expect(Error.captureStackTrace).to.not.exist;
         
-        const err = new BlunderError();
-        expect(err.stack).to.be.a('string');
+        const error = new BlunderError();
+        expect(error.stack).to.be.a('string');
 
         Error.captureStackTrace = captureStackTrace;
     });
 
     it('should support the toString method', () => {
-        const err1 = new BlunderError();
-        expect(err1.toString()).to.equal('BlunderError');
+        const error1 = new BlunderError();
+        expect(error1.toString()).to.equal('BlunderError');
 
-        const err2 = new TestError();
-        expect(err2.toString()).to.equal('TestError');
+        const error2 = new TestError();
+        expect(error2.toString()).to.equal('TestError');
 
-        const err3 = new SubTestError();
-        expect(err3.toString()).to.equal('SubTestError');
+        const error3 = new SubTestError();
+        expect(error3.toString()).to.equal('SubTestError');
     });
 
     it('should support metadata', () => {
-        const err = new BlunderError();
+        const error = new BlunderError();
 
-        expect(err.metadata).to.be.an('object');
+        expect(error.metadata).to.be.an('object');
 
-        const metadata = err.metadata;
+        const metadata = error.metadata;
 
         expect(metadata).to.have.property('timestamp');
         expect(metadata.timestamp).to.be.a('number');
@@ -127,23 +127,23 @@ describe('BlunderError', () => {
     });
 
     it('should support custom details', () => {
-        const err1 = new BlunderError();
-        expect(err1.details).to.be.an('object');
-        expect(err1.details).to.deep.equal({});
+        const error1 = new BlunderError();
+        expect(error1.details).to.be.an('object');
+        expect(error1.details).to.deep.equal({});
 
-        const err2 = new BlunderError('error message', {
+        const error2 = new BlunderError('error message', {
             foo: 1,
             bar: 2,
             baz: 3
         });
-        expect(err2.details).to.deep.equal({
+        expect(error2.details).to.deep.equal({
             foo: 1,
             bar: 2,
             baz: 3
         });
     });
 
-    it('should support converting a BlunderError into JSON', () => {
+    it('should support converting a BlunderError instance into JSON', () => {
         const error = new BlunderError('error message');
 
         const data = {
@@ -166,7 +166,7 @@ describe('BlunderError', () => {
         expect(JSON.parse(json2)).to.deep.equal(data);
     });
 
-    it('should cast normal error instance into BlunderError instance', () => {
+    it('should convert a normal Error into a BlunderError', () => {
         const error = new Error('error message');
 
         const blunderError = BlunderError.from(error);
@@ -178,7 +178,7 @@ describe('BlunderError', () => {
         expect(blunderError.originalError).to.equal(error);
     });
 
-    it('should cast error message into BlunderError instance', () => {
+    it('should convert a string into a BlunderError', () => {
         const message = 'error message';
 
         const blunderError = BlunderError.from(message);
@@ -187,7 +187,7 @@ describe('BlunderError', () => {
         expect(blunderError.message).to.equal(message);
     });
 
-    it('should not cast object if it already is a BlunderError instance', () => {
+    it('should not convert an object if it already is a BlunderError', () => {
         const error = new BlunderError('error message');
 
         const blunderError = BlunderError.from(error);
