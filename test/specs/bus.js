@@ -6,8 +6,8 @@ describe('bus', () => {
         const callback1 = sinon.spy();
         const callback2 = sinon.spy();
 
-        subscribe(callback1);
-        subscribe(callback2);
+        const unsubscribe1 = subscribe(callback1);
+        const unsubscribe2 = subscribe(callback2);
     
         expect(callback1.callCount).to.equal(0);
         expect(callback2.callCount).to.equal(0);
@@ -25,6 +25,9 @@ describe('bus', () => {
         expect(callback1.args[1][0]).to.equal(error);
         expect(callback2.callCount).to.equal(2);
         expect(callback2.args[1][0]).to.equal(error);
+
+        unsubscribe1();
+        unsubscribe2();
     });
     
     it('should remove a subscriber', () => {        
@@ -41,20 +44,20 @@ describe('bus', () => {
     });
 
     it('should allow subscribers to remove themselves without disrupting others', () => {
-        let unsubscribe;
+        let unsubscribe2;
         let doUnsubscribe = false;
 
         const callback1 = sinon.spy();
         const callback2 = sinon.spy(() => {
             if (doUnsubscribe) {
-                unsubscribe();
+                unsubscribe2();
             }
         });
         const callback3 = sinon.spy();
 
-        subscribe(callback1);
-        unsubscribe = subscribe(callback2);
-        subscribe(callback3);
+        const unsubscribe1 = subscribe(callback1);
+        unsubscribe2 = subscribe(callback2);
+        const unsubscribe3 = subscribe(callback3);
 
         expect(callback1.callCount).to.equal(0);
         expect(callback2.callCount).to.equal(0);
@@ -78,11 +81,14 @@ describe('bus', () => {
         expect(callback1.callCount).to.equal(3);
         expect(callback2.callCount).to.equal(2);
         expect(callback3.callCount).to.equal(3);
+
+        unsubscribe1();
+        unsubscribe3();
     });
 
     it('should convert a normal Error into a BlunderError for subscribers', () => {
         const callback = sinon.spy();
-        subscribe(callback);
+        const unsubscribe = subscribe(callback);
         
         const message = 'An error occurred';
         dispatch(message);
@@ -90,11 +96,13 @@ describe('bus', () => {
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(BlunderError);
         expect(error.message).to.equal(message);
+
+        unsubscribe();
     });
 
     it('should convert a string into a BlunderError for subscribers', () => {
         const callback = sinon.spy();
-        subscribe(callback);
+        const unsubscribe = subscribe(callback);
         
         const message = 'An error occurred';
         dispatch(message);
@@ -102,5 +110,7 @@ describe('bus', () => {
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(BlunderError);
         expect(error.message).to.equal(message);
+
+        unsubscribe();
     });
 });
