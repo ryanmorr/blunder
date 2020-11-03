@@ -91,11 +91,13 @@ describe('bus', () => {
         const unsubscribe = subscribe(callback);
         
         const message = 'An error occurred';
-        dispatch(message);
+        const err = new Error(message);
+        dispatch(err);
         
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(BlunderError);
         expect(error.message).to.equal(message);
+        expect(error.originalError).to.equal(err);
 
         unsubscribe();
     });
