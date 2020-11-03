@@ -62,16 +62,19 @@ export class BlunderError extends Error {
         return typeof key === 'undefined' ? JSON.stringify(data) : data;
     }
 
-    static from(error) {
+    static from(error, details) {
         if (error instanceof BlunderError) {
+            if (details) {
+                error.details = Object.assign(error.details, details);
+            }
             return error;
         }
         if (error instanceof Error) {
-            const blunderError = new BlunderError(error.message);
+            const blunderError = new BlunderError(error.message, details);
             blunderError.originalError = error;
             blunderError.stack = error.stack;
             return blunderError;
         }
-        return new BlunderError(error);
+        return new BlunderError(error, details);
     }
 }

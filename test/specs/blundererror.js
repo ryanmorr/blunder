@@ -194,4 +194,56 @@ describe('BlunderError', () => {
 
         expect(blunderError).to.equal(error);
     });
+
+
+
+
+
+
+
+
+
+    it('should convert a normal Error into a BlunderError with custom details', () => {
+        const error = new Error('error message');
+
+        const details = {
+            foo: 1,
+            bar: 2,
+            baz: 3
+        };
+
+        const blunderError = BlunderError.from(error, details);
+
+        expect(blunderError.details).to.deep.equal(details);
+    });
+
+    it('should convert a string into a BlunderError with custom details', () => {
+        const message = 'error message';
+        const details = {
+            foo: 1,
+            bar: 2,
+            baz: 3
+        };
+
+        const blunderError = BlunderError.from(message, details);
+
+        expect(blunderError.details).to.deep.equal(details);
+    });
+
+    it('should merge custom details into a BlunderError', () => {
+        const error = new BlunderError('error message', {
+            foo: 1
+        });
+
+        const blunderError = BlunderError.from(error, {
+            bar: 2,
+            baz: 3
+        });
+
+        expect(blunderError.details).to.deep.equal({
+            foo: 1,
+            bar: 2,
+            baz: 3
+        });
+    });
 });
