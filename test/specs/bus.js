@@ -113,4 +113,22 @@ describe('bus', () => {
 
         unsubscribe();
     });
+
+    it('should dispatch an error with custom details', () => {
+        const callback = sinon.spy();
+        const unsubscribe = subscribe(callback);
+        
+        const error = new Error();
+        const details = {
+            foo: 1,
+            bar: 2,
+            baz: 3
+        };
+
+        dispatch(error, details);
+        
+        expect(callback.args[0][0].details).to.deep.equal(details);
+
+        unsubscribe();
+    });
 });

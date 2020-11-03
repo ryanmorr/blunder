@@ -12,7 +12,7 @@ export function subscribe(callback) {
     };
 }
 
-export function dispatch(error) {
-    const blunderError = BlunderError.from(error);
+export function dispatch(error, details) {
+    const blunderError = BlunderError.from(error, details);
     subscribers.slice().forEach((callback) => callback(blunderError));
 }
