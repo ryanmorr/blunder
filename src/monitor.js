@@ -13,13 +13,13 @@ function handleError(e) {
 
 function handleUnhandledRejection(e) {
     e.preventDefault();
-    const error = BlunderError.from(e.reason);
+    const error = BlunderError.from(e.reason, {promise: e.promise});
     dispatch(error);
 }
 
 function handleRejectionHandled(e) {
     e.preventDefault();
-    const error = BlunderError.from(e.reason);
+    const error = BlunderError.from(e.reason, {promise: e.promise});
     dispatch(error);
 }
 

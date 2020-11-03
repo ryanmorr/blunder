@@ -136,6 +136,7 @@ describe('monitor', () => {
             expect(err).to.be.an.instanceof(BlunderError);
             expect(err.message).to.equal(message);
             expect(err.originalError).to.equal(error);
+            expect(err.details.promise).to.equal(promise);
 
             stop();
             unsubscribe();
@@ -162,6 +163,7 @@ describe('monitor', () => {
             expect(err).to.be.an.instanceof(BlunderError);
             expect(err.message).to.equal(message);
             expect(err.originalError).to.equal(error);
+            expect(err.details.promise).to.equal(promise);
 
             stop();
             unsubscribe();
