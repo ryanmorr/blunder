@@ -72,6 +72,9 @@ describe('Exception', () => {
     });
 
     it('should support metadata', () => {
+        const cookie = 'foo=bar';
+        document.cookie = cookie;
+        
         const error = new Exception();
 
         expect(error.metadata).to.be.an('object');
@@ -94,7 +97,7 @@ describe('Exception', () => {
         expect(metadata.referrer).to.equal(document.referrer);
 
         expect(metadata).to.have.property('cookie');
-        expect(metadata.cookie).to.equal(navigator.cookieEnabled ? document.cookie : 'disabled');
+        expect(metadata.cookie).to.equal(navigator.cookieEnabled ? cookie : 'disabled');
 
         expect(metadata).to.have.property('language');
         expect(metadata.language).to.equal(navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || navigator.language);
