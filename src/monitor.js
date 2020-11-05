@@ -1,4 +1,4 @@
-import { BlunderError } from './blundererror';
+import { Exception } from './exception';
 import { dispatch } from './bus';
 
 let hasErrorEvent = false;
@@ -7,19 +7,19 @@ let hasRejectionHandledEvent = false;
 
 function handleError(e) {
     e.preventDefault();
-    const error = BlunderError.from(e.error);
+    const error = Exception.from(e.error);
     dispatch(error);
 }
 
 function handleUnhandledRejection(e) {
     e.preventDefault();
-    const error = BlunderError.from(e.reason, {promise: e.promise});
+    const error = Exception.from(e.reason, {promise: e.promise});
     dispatch(error);
 }
 
 function handleRejectionHandled(e) {
     e.preventDefault();
-    const error = BlunderError.from(e.reason, {promise: e.promise});
+    const error = Exception.from(e.reason, {promise: e.promise});
     dispatch(error);
 }
 

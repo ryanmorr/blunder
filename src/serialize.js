@@ -1,4 +1,4 @@
-import { BlunderError } from './blundererror';
+import { Exception } from './exception';
 
 function getType(obj) {
     return {}.toString.call(obj).slice(8, -1);
@@ -10,7 +10,7 @@ function toObject(error) {
         message: error.message,
         stack: error.stack
     };
-    if (error instanceof BlunderError) {
+    if (error instanceof Exception) {
         data.details = error.details;
         data.metadata = error.metadata;
     }

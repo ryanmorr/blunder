@@ -1,4 +1,4 @@
-import { BlunderError } from './blundererror';
+import { Exception } from './exception';
 
 const subscribers = [];
 
@@ -13,6 +13,6 @@ export function subscribe(callback) {
 }
 
 export function dispatch(error, details) {
-    const blunderError = BlunderError.from(error, details);
+    const blunderError = Exception.from(error, details);
     subscribers.slice().forEach((callback) => callback(blunderError));
 }

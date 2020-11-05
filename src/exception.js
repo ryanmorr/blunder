@@ -4,7 +4,7 @@ const nav = window.navigator;
 const screen = window.screen;
 const perf = window.performance;
 
-export class BlunderError extends Error {
+export class Exception extends Error {
     constructor(message, details = {}) {
         super(message);
         Object.defineProperty(this, 'name', {
@@ -52,18 +52,18 @@ export class BlunderError extends Error {
     }
 
     static from(error, details) {
-        if (error instanceof BlunderError) {
+        if (error instanceof Exception) {
             if (details) {
                 error.details = Object.assign(error.details, details);
             }
             return error;
         }
         if (error instanceof Error) {
-            const blunderError = new BlunderError(error.message, details);
-            blunderError.originalError = error;
-            blunderError.stack = error.stack;
-            return blunderError;
+            const ex = new Exception(error.message, details);
+            ex.originalError = error;
+            ex.stack = error.stack;
+            return ex;
         }
-        return new BlunderError(error, details);
+        return new Exception(error, details);
     }
 }

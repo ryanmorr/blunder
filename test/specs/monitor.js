@@ -1,4 +1,4 @@
-import { monitor, subscribe, BlunderError } from '../../src/blunder';
+import { monitor, subscribe, Exception } from '../../src/blunder';
 
 describe('monitor', () => {
     it('Should add all global error event listeners by default', () => {
@@ -106,7 +106,7 @@ describe('monitor', () => {
         });
 
         unsubscribe = subscribe((err) => {
-            expect(err).to.be.an.instanceof(BlunderError);
+            expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
             expect(err.originalError).to.equal(error);
 
@@ -133,7 +133,7 @@ describe('monitor', () => {
         });
 
         unsubscribe = subscribe((err) => {
-            expect(err).to.be.an.instanceof(BlunderError);
+            expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
             expect(err.originalError).to.equal(error);
             expect(err.details.promise).to.equal(promise);
@@ -160,7 +160,7 @@ describe('monitor', () => {
         });
 
         unsubscribe = subscribe((err) => {
-            expect(err).to.be.an.instanceof(BlunderError);
+            expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
             expect(err.originalError).to.equal(error);
             expect(err.details.promise).to.equal(promise);

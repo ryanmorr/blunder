@@ -1,4 +1,4 @@
-import { BlunderError } from './blundererror';
+import { Exception } from './exception';
 import { dispatch } from './bus';
 
 export function attempt(fn) {
@@ -6,7 +6,7 @@ export function attempt(fn) {
         try {
             resolve(fn());
         } catch(e) {
-            const error = BlunderError.from(e);
+            const error = Exception.from(e);
             reject(error);
             dispatch(error);
         }

@@ -1,8 +1,8 @@
-import { serialize, BlunderError } from '../../src/blunder';
+import { serialize, Exception } from '../../src/blunder';
 
 describe('serialize', () => {
-    it('should serialize a BlunderError into JSON', () => {
-        const error = new BlunderError('error message');
+    it('should serialize an Exception into JSON', () => {
+        const error = new Exception('error message');
 
         const data = {
             name: error.name,
@@ -36,7 +36,7 @@ describe('serialize', () => {
 
     it('should serialize dates to long form strings', () => {
         const date = new Date();
-        const error = new BlunderError('error message', {
+        const error = new Exception('error message', {
             date
         });
 
@@ -48,7 +48,7 @@ describe('serialize', () => {
     it('should serialize functions to its string representation', () => {
         const foo = () => {};
 
-        const error = new BlunderError('error message', {
+        const error = new Exception('error message', {
             fn: foo
         });
 

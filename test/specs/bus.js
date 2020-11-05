@@ -1,8 +1,8 @@
-import { subscribe, dispatch, BlunderError } from '../../src/blunder';
+import { subscribe, dispatch, Exception } from '../../src/blunder';
 
 describe('bus', () => {
     it('should support subscribers to be called when an error is dispatched', () => {
-        const error = new BlunderError();
+        const error = new Exception();
         const callback1 = sinon.spy();
         const callback2 = sinon.spy();
 
@@ -86,7 +86,7 @@ describe('bus', () => {
         unsubscribe3();
     });
 
-    it('should convert a normal Error into a BlunderError for subscribers', () => {
+    it('should convert a normal Error into an Exception for subscribers', () => {
         const callback = sinon.spy();
         const unsubscribe = subscribe(callback);
         
@@ -95,14 +95,14 @@ describe('bus', () => {
         dispatch(err);
         
         const error = callback.args[0][0];
-        expect(error).to.be.an.instanceof(BlunderError);
+        expect(error).to.be.an.instanceof(Exception);
         expect(error.message).to.equal(message);
         expect(error.originalError).to.equal(err);
 
         unsubscribe();
     });
 
-    it('should convert a string into a BlunderError for subscribers', () => {
+    it('should convert a string into an Exception for subscribers', () => {
         const callback = sinon.spy();
         const unsubscribe = subscribe(callback);
         
@@ -110,7 +110,7 @@ describe('bus', () => {
         dispatch(message);
         
         const error = callback.args[0][0];
-        expect(error).to.be.an.instanceof(BlunderError);
+        expect(error).to.be.an.instanceof(Exception);
         expect(error.message).to.equal(message);
 
         unsubscribe();
