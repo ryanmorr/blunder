@@ -25,8 +25,8 @@ export class BlunderError extends Error {
             });
         }
         this.metadata = {
+            datetime: new Date(),
             timestamp: Date.now(),
-            datetime: new Date().toString(),
             userAgent: nav.userAgent,
             url: doc.location.href,
             referrer: doc.referrer,
@@ -49,17 +49,6 @@ export class BlunderError extends Error {
             this.metadata.heapPercent = Math.round(perf.memory.usedJSHeapSize / perf.memory.jsHeapSizeLimit * 100);
         }
         this.details = Object.assign({}, details);
-    }
-
-    toJSON(key) {
-        const data = {
-            name: this.name,
-            message: this.message,
-            stack: this.stack,
-            details: this.details,
-            metadata: this.metadata
-        };
-        return typeof key === 'undefined' ? JSON.stringify(data) : data;
     }
 
     static from(error, details) {
