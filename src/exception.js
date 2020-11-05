@@ -52,18 +52,19 @@ export class Exception extends Error {
     }
 
     static from(error, details) {
-        if (error instanceof Exception) {
+        const constructor = this;
+        if (error instanceof constructor) {
             if (details) {
                 error.details = Object.assign(error.details, details);
             }
             return error;
         }
         if (error instanceof Error) {
-            const ex = new Exception(error.message, details);
+            const ex = new constructor(error.message, details);
             ex.originalError = error;
             ex.stack = error.stack;
             return ex;
         }
-        return new Exception(error, details);
+        return new constructor(error, details);
     }
 }

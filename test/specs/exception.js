@@ -149,30 +149,53 @@ describe('Exception', () => {
     it('should convert a normal Error into an Exception', () => {
         const error = new Error('error message');
 
-        const ex = Exception.from(error);
+        const ex1 = Exception.from(error);
+        expect(ex1).to.be.an.instanceof(Exception);
+        expect(ex1.name).to.equal('Exception');
+        expect(ex1.message).to.equal(error.message);
+        expect(ex1.stack).to.equal(error.stack);
+        expect(ex1.originalError).to.equal(error);
 
-        expect(ex).to.be.an.instanceof(Exception);
-        expect(ex.name).to.equal('Exception');
-        expect(ex.message).to.equal(error.message);
-        expect(ex.stack).to.equal(error.stack);
-        expect(ex.originalError).to.equal(error);
+        const ex2 = TestError.from(error);
+        expect(ex2).to.be.an.instanceof(TestError);
+        expect(ex2.name).to.equal('TestError');
+        expect(ex2.message).to.equal(error.message);
+        expect(ex2.stack).to.equal(error.stack);
+        expect(ex2.originalError).to.equal(error);
+
+        const ex3 = SubTestError.from(error);
+        expect(ex3).to.be.an.instanceof(SubTestError);
+        expect(ex3.name).to.equal('SubTestError');
+        expect(ex3.message).to.equal(error.message);
+        expect(ex3.stack).to.equal(error.stack);
+        expect(ex3.originalError).to.equal(error)
     });
 
     it('should convert a string into an Exception', () => {
         const message = 'error message';
 
-        const ex = Exception.from(message);
+        const ex1 = Exception.from(message);
+        expect(ex1).to.be.an.instanceof(Exception);
+        expect(ex1.message).to.equal(message);
 
-        expect(ex).to.be.an.instanceof(Exception);
-        expect(ex.message).to.equal(message);
+        const ex2 = TestError.from(message);
+        expect(ex2).to.be.an.instanceof(TestError);
+        expect(ex2.message).to.equal(message);
+
+        const ex3 = SubTestError.from(message);
+        expect(ex3).to.be.an.instanceof(SubTestError);
+        expect(ex3.message).to.equal(message);
     });
 
     it('should not convert an object if it already is an Exception', () => {
-        const error = new Exception('error message');
+        const ex1 = new Exception('error message');
+        expect(Exception.from(ex1)).to.equal(ex1);
 
-        const ex = Exception.from(error);
+        const ex2 = new TestError('error message');
+        expect(TestError.from(ex2)).to.equal(ex2);
 
-        expect(ex).to.equal(error);
+        const ex3 = new SubTestError('error message');
+        expect(SubTestError.from(ex3)).to.equal(ex3);
     });
 
     it('should convert a normal Error into an Exception with custom details', () => {
