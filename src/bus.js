@@ -1,6 +1,7 @@
 import { Exception } from './exception';
 
 const subscribers = [];
+const dispatched = new WeakSet();
 
 export function subscribe(callback) {
     subscribers.push(callback);
@@ -13,6 +14,10 @@ export function subscribe(callback) {
 }
 
 export function dispatch(error, details) {
-    const blunderError = Exception.from(error, details);
-    subscribers.slice().forEach((callback) => callback(blunderError));
+    const ex = Exception.from(error, details);
+    if (dispatched.has(ex)) {
+        return;
+    }
+    dispatched.add(ex);
+    subscribers.slice().forEach((callback) => callback(ex));
 }

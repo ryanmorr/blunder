@@ -2,7 +2,6 @@ import { subscribe, dispatch, Exception } from '../../src/blunder';
 
 describe('bus', () => {
     it('should support subscribers to be called when an error is dispatched', () => {
-        const error = new Exception();
         const callback1 = sinon.spy();
         const callback2 = sinon.spy();
 
@@ -11,20 +10,22 @@ describe('bus', () => {
     
         expect(callback1.callCount).to.equal(0);
         expect(callback2.callCount).to.equal(0);
-    
-        dispatch(error);
+        
+        const error1 = new Exception();
+        dispatch(error1);
     
         expect(callback1.callCount).to.equal(1);
-        expect(callback1.args[0][0]).to.equal(error);
+        expect(callback1.args[0][0]).to.equal(error1);
         expect(callback2.callCount).to.equal(1);
-        expect(callback2.args[0][0]).to.equal(error);
-    
-        dispatch(error);
+        expect(callback2.args[0][0]).to.equal(error1);
+        
+        const error2 = new Exception();
+        dispatch(error2);
     
         expect(callback1.callCount).to.equal(2);
-        expect(callback1.args[1][0]).to.equal(error);
+        expect(callback1.args[1][0]).to.equal(error2);
         expect(callback2.callCount).to.equal(2);
-        expect(callback2.args[1][0]).to.equal(error);
+        expect(callback2.args[1][0]).to.equal(error2);
 
         unsubscribe1();
         unsubscribe2();
@@ -130,6 +131,23 @@ describe('bus', () => {
         dispatch(error, details);
         
         expect(callback.args[0][0].details).to.deep.equal(details);
+
+        unsubscribe();
+    });
+
+    it('should only dispatch an error instance once', () => {
+        const error = new Exception();
+        const callback = sinon.spy();
+
+        const unsubscribe = subscribe(callback);
+    
+        dispatch(error);
+    
+        expect(callback.callCount).to.equal(1);
+    
+        dispatch(error);
+    
+        expect(callback.callCount).to.equal(1);
 
         unsubscribe();
     });
