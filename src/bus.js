@@ -16,8 +16,9 @@ export function subscribe(callback) {
 export function dispatch(error, details) {
     const ex = Exception.from(error, details);
     if (dispatched.has(ex)) {
-        return;
+        return ex;
     }
     dispatched.add(ex);
     subscribers.slice().forEach((callback) => callback(ex));
+    return ex;
 }

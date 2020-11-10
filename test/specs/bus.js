@@ -12,7 +12,7 @@ describe('bus', () => {
         expect(callback2.callCount).to.equal(0);
         
         const error1 = new Exception();
-        dispatch(error1);
+        expect(dispatch(error1)).to.equal(error1);
     
         expect(callback1.callCount).to.equal(1);
         expect(callback1.args[0][0]).to.equal(error1);
@@ -20,7 +20,7 @@ describe('bus', () => {
         expect(callback2.args[0][0]).to.equal(error1);
         
         const error2 = new Exception();
-        dispatch(error2);
+        expect(dispatch(error2)).to.equal(error2);
     
         expect(callback1.callCount).to.equal(2);
         expect(callback1.args[1][0]).to.equal(error2);
@@ -93,7 +93,7 @@ describe('bus', () => {
         
         const message = 'An error occurred';
         const err = new Error(message);
-        dispatch(err);
+        expect(dispatch(err)).to.be.an.instanceof(Exception);
         
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(Exception);
@@ -108,7 +108,7 @@ describe('bus', () => {
         const unsubscribe = subscribe(callback);
         
         const message = 'An error occurred';
-        dispatch(message);
+        expect(dispatch(message)).to.be.an.instanceof(Exception);
         
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(Exception);
@@ -128,7 +128,7 @@ describe('bus', () => {
             baz: 3
         };
 
-        dispatch(error, details);
+        expect(dispatch(error, details)).to.be.an.instanceof(Exception);
         
         expect(callback.args[0][0].details).to.deep.equal(details);
 
@@ -141,11 +141,11 @@ describe('bus', () => {
 
         const unsubscribe = subscribe(callback);
     
-        dispatch(error);
+        expect(dispatch(error)).to.equal(error);
     
         expect(callback.callCount).to.equal(1);
     
-        dispatch(error);
+        expect(dispatch(error)).to.equal(error);
     
         expect(callback.callCount).to.equal(1);
 
