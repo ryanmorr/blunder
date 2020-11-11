@@ -241,4 +241,22 @@ describe('Exception', () => {
             baz: 3
         });
     });
+
+    it('should support a parsed stacktrace property', () => {
+        const foo = () => bar();
+        const bar = () => baz();
+        const baz = () => qux();
+        
+        const qux = () => {
+            const error = new Exception();
+            expect(error.stacktrace).to.be.an('array');
+            expect(error.stacktrace.length > 0).to.equal(true);
+            expect(error.stacktrace[0].functionName).to.equal('qux');
+            expect(error.stacktrace[1].functionName).to.equal('baz');
+            expect(error.stacktrace[2].functionName).to.equal('bar');
+            expect(error.stacktrace[3].functionName).to.equal('foo');
+        };
+        
+        foo();
+    });
 });

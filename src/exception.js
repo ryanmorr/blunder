@@ -1,3 +1,5 @@
+import { stacktrace } from './stacktrace';
+
 const doc = window.document;
 const docEl = doc.documentElement;
 const nav = window.navigator;
@@ -49,6 +51,7 @@ export class Exception extends Error {
             this.metadata.heapPercent = Math.round(perf.memory.usedJSHeapSize / perf.memory.jsHeapSizeLimit * 100);
         }
         this.details = Object.assign({}, details);
+        this.stacktrace = stacktrace(this.stack);
     }
 
     static from(error, details) {
