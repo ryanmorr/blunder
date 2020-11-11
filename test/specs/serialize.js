@@ -7,6 +7,9 @@ describe('serialize', () => {
         const data = {
             name: error.name,
             message: error.message,
+            fileName: error.fileName,
+            lineNumber: error.lineNumber,
+            columnNumber: error.columnNumber,
             stack: error.stack,
             details: error.details,
             metadata: error.metadata,

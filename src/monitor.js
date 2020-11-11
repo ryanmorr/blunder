@@ -7,20 +7,21 @@ let hasRejectionHandledEvent = false;
 
 function handleError(e) {
     e.preventDefault();
-    const error = Exception.from(e.error);
-    dispatch(error);
+    const error = e.error;
+    error.fileName = e.filename;
+    error.lineNumber = e.lineno;
+    error.columnNumber = e.colno;
+    dispatch(Exception.from(error));
 }
 
 function handleUnhandledRejection(e) {
     e.preventDefault();
-    const error = Exception.from(e.reason, {promise: e.promise});
-    dispatch(error);
+    dispatch(Exception.from(e.reason, {promise: e.promise}));
 }
 
 function handleRejectionHandled(e) {
     e.preventDefault();
-    const error = Exception.from(e.reason, {promise: e.promise});
-    dispatch(error);
+    dispatch(Exception.from(e.reason, {promise: e.promise}));
 }
 
 function removeListeners() {

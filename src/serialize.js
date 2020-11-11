@@ -11,6 +11,9 @@ function toObject(error) {
         stack: error.stack
     };
     if (error instanceof Exception) {
+        data.fileName = error.fileName;
+        data.lineNumber = error.lineNumber;
+        data.columnNumber = error.columnNumber;
         data.details = error.details;
         data.metadata = error.metadata;
         data.stacktrace = error.stacktrace;

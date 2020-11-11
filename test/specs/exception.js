@@ -41,6 +41,21 @@ describe('Exception', () => {
         expect(error.message).to.equal(msg);
     });
 
+    it('should support the fileName property', () => {
+        const error = new Exception();
+        expect(error.fileName).to.be.a('string');
+    });
+
+    it('should support the lineNumber property', () => {
+        const error = new Exception();
+        expect(error.lineNumber).to.be.a('number');
+    });
+
+    it('should support the columnNumber property', () => {
+        const error = new Exception();
+        expect(error.columnNumber).to.be.a('number');
+    });
+
     it('should support the stack property', () => {
         const error1 = new Exception();
         expect(error1.stack).to.be.a('string');

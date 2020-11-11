@@ -52,6 +52,16 @@ export class Exception extends Error {
         }
         this.details = Object.assign({}, details);
         this.stacktrace = stacktrace(this.stack);
+        const hasStack = this.stacktrace.length > 0;
+        if (this.fileName === undefined) {
+            this.fileName = this.fileName || this.filename || this.sourceURL || hasStack ? this.stacktrace[0].fileName : null;
+        }
+        if (this.lineNumber === undefined) {
+            this.lineNumber = this.line || hasStack ? this.stacktrace[0].lineNumber : null;
+        }
+        if (this.columnNumber === undefined) {
+            this.columnNumber = this.columnNumber || hasStack ? this.stacktrace[0].columnNumber : null;
+        }
     }
 
     static from(error, details) {
