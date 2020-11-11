@@ -9,7 +9,8 @@ describe('serialize', () => {
             message: error.message,
             stack: error.stack,
             details: error.details,
-            metadata: error.metadata
+            metadata: error.metadata,
+            stacktrace: error.stacktrace
         };
         data.metadata.datetime = data.metadata.datetime.toString();
 

@@ -13,6 +13,7 @@ function toObject(error) {
     if (error instanceof Exception) {
         data.details = error.details;
         data.metadata = error.metadata;
+        data.stacktrace = error.stacktrace;
     }
     return data;
 }
