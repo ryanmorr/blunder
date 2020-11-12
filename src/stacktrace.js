@@ -6,7 +6,7 @@ function parseStack(stack) {
     return stack.split('\n').reduce((stacktrace, line) => {
         let match = line.match(CHROME_RE) || line.match(GECKO_RE);
         if (match) {
-            const [all, functionName, fileName, lineNumber, columnNumber] = match;
+            const [, functionName, fileName, lineNumber, columnNumber] = match;
             stacktrace.push({
                 functionName: functionName || UNKNOWN_FUNCTION,
                 fileName,

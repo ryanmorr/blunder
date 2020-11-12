@@ -183,7 +183,7 @@ describe('Exception', () => {
         expect(ex3.name).to.equal('SubTestError');
         expect(ex3.message).to.equal(error.message);
         expect(ex3.stack).to.equal(error.stack);
-        expect(ex3.originalError).to.equal(error)
+        expect(ex3.originalError).to.equal(error);
     });
 
     it('should convert a string into an Exception', () => {
