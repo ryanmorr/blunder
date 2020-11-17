@@ -33,7 +33,7 @@ export class Exception extends Error {
             url: doc.location.href,
             referrer: doc.referrer,
             cookie: nav.cookieEnabled ? doc.cookie : 'disabled',
-            language: nav.browserLanguage || nav.systemLanguage || nav.userLanguage || nav.language,
+            language: nav.language || nav.userLanguage,
             readyState: doc.readyState,
             viewportWidth: window.innerWidth,
             viewportHeight: window.innerHeight

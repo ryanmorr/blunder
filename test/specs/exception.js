@@ -115,7 +115,7 @@ describe('Exception', () => {
         expect(metadata.cookie).to.equal(navigator.cookieEnabled ? cookie : 'disabled');
 
         expect(metadata).to.have.property('language');
-        expect(metadata.language).to.equal(navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || navigator.language);
+        expect(metadata.language).to.equal(navigator.language || navigator.userLanguage);
 
         expect(metadata).to.have.property('readyState');
         expect(metadata.readyState).to.equal(document.readyState);
