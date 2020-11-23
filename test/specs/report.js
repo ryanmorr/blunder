@@ -16,7 +16,11 @@ describe('report', () => {
         })));
         
         const error = new Exception();
-        report('/path/to/endpoint', error).then((data) => {
+        const promise = report('/path/to/endpoint', error);
+
+        expect(promise).to.be.a('promise');
+        
+        promise.then((data) => {
             expect(response).to.deep.equal(data);
     
             expect(fetch.callCount).to.equal(1);
