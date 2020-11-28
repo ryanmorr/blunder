@@ -33,39 +33,54 @@ describe('monitor', () => {
     });
 
     it('Should allow adding only the global error event listener', () => {
-        const spy = sinon.spy(window, 'addEventListener');
+        const addSpy = sinon.spy(window, 'addEventListener');
+        const removeSpy = sinon.spy(window, 'removeEventListener');
 
         const stop = monitor({error: true, unhandledrejection: false, rejectionhandled: false});
 
-        expect(spy.callCount).to.equal(1);
-        expect(spy.args[0][0]).to.equal('error');
+        expect(addSpy.callCount).to.equal(1);
+        expect(addSpy.args[0][0]).to.equal('error');
 
-        spy.restore();
         stop();
+        expect(removeSpy.callCount).to.equal(1);
+        expect(removeSpy.args[0][0]).to.equal('error');
+
+        addSpy.restore();
+        removeSpy.restore();
     });
 
     it('Should allow adding only the global unhandledrejection event listener', () => {
-        const spy = sinon.spy(window, 'addEventListener');
+        const addSpy = sinon.spy(window, 'addEventListener');
+        const removeSpy = sinon.spy(window, 'removeEventListener');
 
         const stop = monitor({error: false, unhandledrejection: true, rejectionhandled: false});
 
-        expect(spy.callCount).to.equal(1);
-        expect(spy.args[0][0]).to.equal('unhandledrejection');
+        expect(addSpy.callCount).to.equal(1);
+        expect(addSpy.args[0][0]).to.equal('unhandledrejection');
 
-        spy.restore();
         stop();
+        expect(removeSpy.callCount).to.equal(1);
+        expect(removeSpy.args[0][0]).to.equal('unhandledrejection');
+
+        addSpy.restore();
+        removeSpy.restore();
     });
 
     it('Should allow adding only the global rejectionhandled event listener', () => {
-        const spy = sinon.spy(window, 'addEventListener');
+        const addSpy = sinon.spy(window, 'addEventListener');
+        const removeSpy = sinon.spy(window, 'removeEventListener');
 
         const stop = monitor({error: false, unhandledrejection: false, rejectionhandled: true});
 
-        expect(spy.callCount).to.equal(1);
-        expect(spy.args[0][0]).to.equal('rejectionhandled');
+        expect(addSpy.callCount).to.equal(1);
+        expect(addSpy.args[0][0]).to.equal('rejectionhandled');
 
-        spy.restore();
         stop();
+        expect(removeSpy.callCount).to.equal(1);
+        expect(removeSpy.args[0][0]).to.equal('rejectionhandled');
+
+        addSpy.restore();
+        removeSpy.restore();
     });
 
     it('Should not add or remove more than one event listener for each global error event type', () => {
