@@ -2,24 +2,50 @@ import { attempt, subscribe, monitor, Exception } from '../../src/blunder';
 
 describe('attempt', () => {
     it('should resolve when the provided function is successfully executed', (done) => {
-        attempt(() => {
+        const promise = attempt(() => {
             return 'foo';
-        }).then((val) => {
+        });
+        
+        expect(promise).to.be.a('promise');
+
+        promise.then((val) => {
             expect(val).to.equal('foo');
             done();
         });
     });
 
-    it('should reject when the provided function raises an error', (done) => {
+    it('should reject when the provided function throws an error', (done) => {
         const message = 'An error occurred';
         const error = new Error(message);
 
-        attempt(() => {
+        const promise = attempt(() => {
             throw error;
-        }).catch((e) => {
-            expect(e).to.be.an.instanceof(Exception);
-            expect(e.message).to.equal(message);
-            expect(e.originalError).to.equal(error);
+        });
+        
+        expect(promise).to.be.a('promise');
+        
+        promise.catch((ex) => {
+            expect(ex).to.be.an.instanceof(Exception);
+            expect(ex.message).to.equal(message);
+            expect(ex.originalError).to.equal(error);
+            done();
+        });
+    });
+
+    it('should allow passing details to the error object when an error is thrown', (done) => {
+        const callback = () => {
+            throw new Error();
+        };
+
+        const details = {
+            foo: 1,
+            bar: 2,
+            baz: 3
+        };
+
+        attempt(callback, details).catch((ex) => {
+            expect(ex).to.be.an.instanceof(Exception);
+            expect(ex.details).to.deep.equal(details);
             done();
         });
     });
