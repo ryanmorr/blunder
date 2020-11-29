@@ -24,30 +24,6 @@ describe('attempt', () => {
         });
     });
 
-    /* it('should dispatch an error to global error handlers', () => {
-        const message = 'An error occurred';
-        const error = new Error(message);
-
-        const callback = sinon.spy();
-        const unsubscribe = subscribe(callback);
-
-        attempt(() => {
-            throw error;
-        });
-
-        expect(callback.callCount).to.equal(1);
-
-        const e = callback.args[0][0];
-        expect(e).to.be.an.instanceof(Exception);
-        expect(e.message).to.equal(message);
-        expect(e.originalError).to.equal(error);
-
-        unsubscribe();
-    }); */
-
-
-
-
     it('should dispatch an error to global error handlers', (done) => {
         const message = 'An error occurred';
         const error = new Error(message);
