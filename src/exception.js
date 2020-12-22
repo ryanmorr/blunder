@@ -33,6 +33,25 @@ export class Exception extends Error {
         return this._stacktrace;
     }
 
+    toJSON() {
+        return {
+            name: this.name,
+            message: this.message,
+            stack: this.stack,
+            meta: this.meta,
+            stacktrace: this.stacktrace,
+            detail: Object.keys(this.detail).reduce((detail, key) => {
+                let val = this.detail[key];
+                const type = {}.toString.call(val).slice(8, -1);
+                if (type === 'Date' || type === 'Function') {
+                    val = val.toString();
+                }
+                detail[key] = val;
+                return detail;
+            }, {})
+        };
+    }
+
     static from(error, detail) {
         const constructor = this;
         if (error instanceof constructor) {

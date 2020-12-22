@@ -1,10 +1,10 @@
-import { report, Exception, serialize } from '../../src/blunder';
+import { report, Exception } from '../../src/blunder';
 
 describe('report', () => {
-    let stubedFetch = sinon.stub(window, 'fetch');
+    let stubbedFetch = sinon.stub(window, 'fetch');
 
     after(() => {
-        stubedFetch.restore();
+        stubbedFetch.restore();
     });
 
     it('should send an error to the server', (done) => {
@@ -30,8 +30,24 @@ describe('report', () => {
                 cache: 'no-cache',
                 credentials: 'include',
                 headers: {'Content-Type': 'application/json'},
-                body: serialize(error)
+                body: JSON.stringify(error)
             });
+    
+            fetch.reset();
+            done();
+        });
+    });
+
+    it('should send an array of errors to the server', (done) => {    
+        fetch.returns(Promise.resolve(new Response('{}', {
+            status: 200,
+            headers: {'Content-type': 'application/json'}
+        })));
+        
+        const error1 = new Exception();
+        const error2 = new Exception();
+        report('/path/to/endpoint', [error1, error2]).then(() => {
+            expect(fetch.args[0][1].body).to.equal(JSON.stringify([error1, error2]));
     
             fetch.reset();
             done();

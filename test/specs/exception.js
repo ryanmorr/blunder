@@ -146,6 +146,46 @@ describe('Exception', () => {
         });
     });
 
+    it('should serialize an Exception into JSON', () => {
+        const error = new Exception('error message');
+
+        const data = {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            detail: error.detail,
+            meta: error.meta,
+            stacktrace: error.stacktrace
+        };
+
+        const jsonData = error.toJSON();
+        expect(jsonData).to.deep.equal(data);
+
+        const json = JSON.stringify(error);
+        expect(json).to.be.a('string');
+        expect(JSON.parse(json)).to.deep.equal(data);
+    });
+
+    it('should serialize dates to long form strings', () => {
+        const date = new Date();
+        const error = new Exception('error message', {
+            date
+        });
+
+        const data = JSON.parse(JSON.stringify(error));
+        expect(data.detail.date).to.equal(date.toString());
+    });
+
+    it('should serialize functions to its string representation', () => {
+        const foo = () => {};
+        const error = new Exception('error message', {
+            fn: foo
+        });
+
+        const data = JSON.parse(JSON.stringify(error));
+        expect(data.detail.fn).to.equal(foo.toString());
+    });
+
     it('should convert a normal Error into an Exception', () => {
         const error = new Error('error message');
         const stack = stacktrace(error.stack);

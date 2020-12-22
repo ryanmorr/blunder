@@ -1,7 +1,6 @@
-import { serialize } from './serialize';
 import { Exception } from './exception';
 
-export function report(url, error) {
+export function report(url, data) {
     return new Promise((resolve, reject) => {
         const fail = (e) => reject(Exception.from(e));
         fetch(url, {
@@ -9,7 +8,7 @@ export function report(url, error) {
             cache: 'no-cache',
             credentials: 'include',
             headers: {'Content-Type': 'application/json'},
-            body: serialize(error)
+            body: JSON.stringify(data)
         }).catch(fail).then((response) => {
             if (!response.ok) {
                 return Promise.reject(Exception.from(response.statusText));
