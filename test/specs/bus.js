@@ -98,7 +98,7 @@ describe('bus', () => {
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(Exception);
         expect(error.message).to.equal(message);
-        expect(error.originalError).to.equal(err);
+        expect(error.source).to.equal(err);
 
         unsubscribe();
     });
@@ -122,15 +122,15 @@ describe('bus', () => {
         const unsubscribe = subscribe(callback);
         
         const error = new Error();
-        const details = {
+        const detail = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        expect(dispatch(error, details)).to.be.an.instanceof(Exception);
+        expect(dispatch(error, detail)).to.be.an.instanceof(Exception);
         
-        expect(callback.args[0][0].details).to.deep.equal(details);
+        expect(callback.args[0][0].detail).to.deep.equal(detail);
 
         unsubscribe();
     });

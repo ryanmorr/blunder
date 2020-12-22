@@ -123,7 +123,7 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.originalError).to.equal(error);
+            expect(err.source).to.equal(error);
 
             stop();
             unsubscribe();
@@ -150,8 +150,8 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.originalError).to.equal(error);
-            expect(err.details.promise).to.equal(promise);
+            expect(err.source).to.equal(error);
+            expect(err.detail.promise).to.equal(promise);
 
             stop();
             unsubscribe();
@@ -177,8 +177,8 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.originalError).to.equal(error);
-            expect(err.details.promise).to.equal(promise);
+            expect(err.source).to.equal(error);
+            expect(err.detail.promise).to.equal(promise);
 
             stop();
             unsubscribe();

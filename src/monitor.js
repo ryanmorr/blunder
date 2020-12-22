@@ -7,11 +7,7 @@ let hasRejectionHandledEvent = false;
 
 function handleError(e) {
     e.preventDefault();
-    const error = e.error;
-    error.fileName = e.filename;
-    error.lineNumber = e.lineno;
-    error.columnNumber = e.colno;
-    dispatch(Exception.from(error));
+    dispatch(Exception.from(e.error));
 }
 
 function handleUnhandledRejection(e) {

@@ -7,15 +7,11 @@ describe('serialize', () => {
         const data = {
             name: error.name,
             message: error.message,
-            fileName: error.fileName,
-            lineNumber: error.lineNumber,
-            columnNumber: error.columnNumber,
             stack: error.stack,
-            details: error.details,
-            metadata: error.metadata,
+            detail: error.detail,
+            meta: error.meta,
             stacktrace: error.stacktrace
         };
-        data.metadata.datetime = data.metadata.datetime.toString();
 
         const json = serialize(error);
 
@@ -46,7 +42,7 @@ describe('serialize', () => {
 
         const data = JSON.parse(serialize(error));
 
-        expect(data.details.date).to.equal(date.toString());
+        expect(data.detail.date).to.equal(date.toString());
     });
 
     it('should serialize functions to its string representation', () => {
@@ -58,6 +54,6 @@ describe('serialize', () => {
 
         const data = JSON.parse(serialize(error));
 
-        expect(data.details.fn).to.equal(foo.toString());
+        expect(data.detail.fn).to.equal(foo.toString());
     });
 });

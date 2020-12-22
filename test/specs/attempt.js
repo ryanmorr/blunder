@@ -27,7 +27,7 @@ describe('attempt', () => {
         promise.catch((ex) => {
             expect(ex).to.be.an.instanceof(Exception);
             expect(ex.message).to.equal(message);
-            expect(ex.originalError).to.equal(error);
+            expect(ex.source).to.equal(error);
             done();
         });
     });
@@ -37,15 +37,15 @@ describe('attempt', () => {
             throw new Error();
         };
 
-        const details = {
+        const detail = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        attempt(callback, details).catch((ex) => {
+        attempt(callback, detail).catch((ex) => {
             expect(ex).to.be.an.instanceof(Exception);
-            expect(ex.details).to.deep.equal(details);
+            expect(ex.detail).to.deep.equal(detail);
             done();
         });
     });
@@ -65,7 +65,7 @@ describe('attempt', () => {
             expect(callback.args[0][0]).to.equal(ex);
             expect(ex).to.be.an.instanceof(Exception);
             expect(ex.message).to.equal(message);
-            expect(ex.originalError).to.equal(error);
+            expect(ex.source).to.equal(error);
 
             unsubscribe();
             done();

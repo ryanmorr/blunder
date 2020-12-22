@@ -46,7 +46,7 @@ describe('report', () => {
         report('/path/to/endpoint', error).catch((e) => {
             expect(e).to.be.an.instanceof(Exception);
             expect(e.message).to.equal('Could not connect');
-            expect(e.originalError).to.equal(fetchError);
+            expect(e.source).to.equal(fetchError);
     
             fetch.reset();
             done();

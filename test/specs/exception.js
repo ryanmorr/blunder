@@ -1,4 +1,4 @@
-import { Exception } from '../../src/blunder';
+import { Exception, stacktrace } from '../../src/blunder';
 
 class TestError extends Exception {}
 class SubTestError extends TestError {}
@@ -41,21 +41,6 @@ describe('Exception', () => {
         expect(error.message).to.equal(msg);
     });
 
-    it('should support the fileName property', () => {
-        const error = new Exception();
-        expect(error.fileName).to.be.a('string');
-    });
-
-    it('should support the lineNumber property', () => {
-        const error = new Exception();
-        expect(error.lineNumber).to.be.a('number');
-    });
-
-    it('should support the columnNumber property', () => {
-        const error = new Exception();
-        expect(error.columnNumber).to.be.a('number');
-    });
-
     it('should support the stack property', () => {
         const error1 = new Exception();
         expect(error1.stack).to.be.a('string');
@@ -92,69 +77,69 @@ describe('Exception', () => {
         
         const error = new Exception();
 
-        expect(error.metadata).to.be.an('object');
+        expect(error.meta).to.be.an('object');
 
-        const metadata = error.metadata;
+        const meta = error.meta;
 
-        expect(metadata).to.have.property('timestamp');
-        expect(metadata.timestamp).to.be.a('number');
+        expect(meta).to.have.property('timestamp');
+        expect(meta.timestamp).to.be.a('number');
 
-        expect(metadata).to.have.property('datetime');
-        expect(metadata.datetime).to.be.a('date');
+        expect(meta).to.have.property('datetime');
+        expect(meta.datetime).to.be.a('string');
 
-        expect(metadata).to.have.property('userAgent');
-        expect(metadata.userAgent).to.equal(navigator.userAgent);
+        expect(meta).to.have.property('userAgent');
+        expect(meta.userAgent).to.equal(navigator.userAgent);
 
-        expect(metadata).to.have.property('url');
-        expect(metadata.url).to.equal(document.location.href);
+        expect(meta).to.have.property('url');
+        expect(meta.url).to.equal(document.location.href);
 
-        expect(metadata).to.have.property('referrer');
-        expect(metadata.referrer).to.equal(document.referrer);
+        expect(meta).to.have.property('referrer');
+        expect(meta.referrer).to.equal(document.referrer);
 
-        expect(metadata).to.have.property('cookie');
-        expect(metadata.cookie).to.equal(navigator.cookieEnabled ? cookie : 'disabled');
+        expect(meta).to.have.property('cookie');
+        expect(meta.cookie).to.equal(navigator.cookieEnabled ? cookie : 'disabled');
 
-        expect(metadata).to.have.property('language');
-        expect(metadata.language).to.equal(navigator.language || navigator.userLanguage);
+        expect(meta).to.have.property('language');
+        expect(meta.language).to.equal(navigator.language || navigator.userLanguage);
 
-        expect(metadata).to.have.property('readyState');
-        expect(metadata.readyState).to.equal(document.readyState);
+        expect(meta).to.have.property('readyState');
+        expect(meta.readyState).to.equal(document.readyState);
 
-        expect(metadata).to.have.property('viewportWidth');
-        expect(metadata.viewportWidth).to.equal(window.innerWidth);
+        expect(meta).to.have.property('viewportWidth');
+        expect(meta.viewportWidth).to.equal(window.innerWidth);
 
-        expect(metadata).to.have.property('viewportHeight');
-        expect(metadata.viewportHeight).to.equal(window.innerHeight);
+        expect(meta).to.have.property('viewportHeight');
+        expect(meta.viewportHeight).to.equal(window.innerHeight);
 
-        expect(metadata).to.have.property('orientation');
+        expect(meta).to.have.property('orientation');
         if (screen && screen.orientation && screen.orientation.type) {
-            expect(metadata.orientation).to.equal(screen.orientation.type);
+            expect(meta.orientation).to.equal(screen.orientation.type);
         } else {
-            expect(metadata.orientation).to.equal(document.documentElement.clientWidth > document.documentElement.clientHeight ? 'landscape' : 'portrait');
+            expect(meta.orientation).to.equal(document.documentElement.clientWidth > document.documentElement.clientHeight ? 'landscape' : 'portrait');
         }
 
         if (navigator.connection && navigator.connection.effectiveType) {
-            expect(metadata).to.have.property('connection');
-            expect(metadata.connection).to.equal(navigator.connection.effectiveType);
+            expect(meta).to.have.property('connection');
+            expect(meta.connection).to.equal(navigator.connection.effectiveType);
         }
 
         if (window.performance && window.performance.memory) {
-            expect(metadata).to.have.property('heap');
-            expect(metadata).to.have.property('heapPercent');
+            expect(meta).to.have.property('heap');
+            expect(meta).to.have.property('heapPercent');
         }
     });
 
     it('should support custom details', () => {
         const error1 = new Exception();
-        expect(error1.details).to.be.an('object');
-        expect(error1.details).to.deep.equal({});
+        expect(error1.detail).to.be.an('object');
+        expect(error1.detail).to.deep.equal({});
 
         const error2 = new Exception('error message', {
             foo: 1,
             bar: 2,
             baz: 3
         });
-        expect(error2.details).to.deep.equal({
+        expect(error2.detail).to.deep.equal({
             foo: 1,
             bar: 2,
             baz: 3
@@ -163,27 +148,31 @@ describe('Exception', () => {
 
     it('should convert a normal Error into an Exception', () => {
         const error = new Error('error message');
+        const stack = stacktrace(error.stack);
 
         const ex1 = Exception.from(error);
         expect(ex1).to.be.an.instanceof(Exception);
         expect(ex1.name).to.equal('Exception');
         expect(ex1.message).to.equal(error.message);
         expect(ex1.stack).to.equal(error.stack);
-        expect(ex1.originalError).to.equal(error);
+        expect(ex1.stacktrace).to.deep.equal(stack);
+        expect(ex1.source).to.equal(error);
 
         const ex2 = TestError.from(error);
         expect(ex2).to.be.an.instanceof(TestError);
         expect(ex2.name).to.equal('TestError');
         expect(ex2.message).to.equal(error.message);
         expect(ex2.stack).to.equal(error.stack);
-        expect(ex2.originalError).to.equal(error);
+        expect(ex2.stacktrace).to.deep.equal(stack);
+        expect(ex2.source).to.equal(error);
 
         const ex3 = SubTestError.from(error);
         expect(ex3).to.be.an.instanceof(SubTestError);
         expect(ex3.name).to.equal('SubTestError');
         expect(ex3.message).to.equal(error.message);
         expect(ex3.stack).to.equal(error.stack);
-        expect(ex3.originalError).to.equal(error);
+        expect(ex3.stacktrace).to.deep.equal(stack);
+        expect(ex3.source).to.equal(error);
     });
 
     it('should convert a string into an Exception', () => {
@@ -216,28 +205,28 @@ describe('Exception', () => {
     it('should convert a normal Error into an Exception with custom details', () => {
         const error = new Error('error message');
 
-        const details = {
+        const detail = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        const ex = Exception.from(error, details);
+        const ex = Exception.from(error, detail);
 
-        expect(ex.details).to.deep.equal(details);
+        expect(ex.detail).to.deep.equal(detail);
     });
 
     it('should convert a string into an Exception with custom details', () => {
         const message = 'error message';
-        const details = {
+        const detail = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        const ex = Exception.from(message, details);
+        const ex = Exception.from(message, detail);
 
-        expect(ex.details).to.deep.equal(details);
+        expect(ex.detail).to.deep.equal(detail);
     });
 
     it('should merge custom details into an Exception', () => {
@@ -250,7 +239,7 @@ describe('Exception', () => {
             baz: 3
         });
 
-        expect(ex.details).to.deep.equal({
+        expect(ex.detail).to.deep.equal({
             foo: 1,
             bar: 2,
             baz: 3
