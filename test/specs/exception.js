@@ -237,9 +237,12 @@ describe('Exception', () => {
 
         const ex2 = new TestError('error message');
         expect(TestError.from(ex2)).to.equal(ex2);
+        expect(Exception.from(ex2)).to.equal(ex2);
 
         const ex3 = new SubTestError('error message');
         expect(SubTestError.from(ex3)).to.equal(ex3);
+        expect(TestError.from(ex3)).to.equal(ex3);
+        expect(Exception.from(ex3)).to.equal(ex3);
     });
 
     it('should convert a normal Error into an Exception with custom details', () => {
