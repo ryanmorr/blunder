@@ -11,7 +11,7 @@ export function getMetaData() {
         userAgent: nav.userAgent,
         url: doc.location.href,
         referrer: doc.referrer,
-        cookie: nav.cookieEnabled ? doc.cookie : 'disabled',
+        cookie: nav.cookieEnabled ? doc.cookie : '<disabled>',
         language: nav.language || nav.userLanguage,
         readyState: doc.readyState,
         viewportWidth: window.innerWidth,
@@ -26,8 +26,8 @@ export function getMetaData() {
         meta.connection = nav.connection.effectiveType;
     }
     if (perf && perf.memory) {
-        meta.heap = Math.round(perf.memory.usedJSHeapSize / 1048576);
-        meta.heapPercent = Math.round(perf.memory.usedJSHeapSize / perf.memory.jsHeapSizeLimit * 100);
+        meta.memory = Math.round(perf.memory.usedJSHeapSize / 1048576);
+        meta.memoryPercent = Math.round(perf.memory.usedJSHeapSize / perf.memory.jsHeapSizeLimit * 100);
     }
     return meta;
 }

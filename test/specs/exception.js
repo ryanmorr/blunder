@@ -97,7 +97,7 @@ describe('Exception', () => {
         expect(meta.referrer).to.equal(document.referrer);
 
         expect(meta).to.have.property('cookie');
-        expect(meta.cookie).to.equal(navigator.cookieEnabled ? cookie : 'disabled');
+        expect(meta.cookie).to.equal(navigator.cookieEnabled ? cookie : '<disabled>');
 
         expect(meta).to.have.property('language');
         expect(meta.language).to.equal(navigator.language || navigator.userLanguage);
@@ -124,8 +124,8 @@ describe('Exception', () => {
         }
 
         if (window.performance && window.performance.memory) {
-            expect(meta).to.have.property('heap');
-            expect(meta).to.have.property('heapPercent');
+            expect(meta).to.have.property('memory');
+            expect(meta).to.have.property('memoryPercent');
         }
     });
 
