@@ -41,7 +41,7 @@ export function monitor({error = true, unhandledrejection = true, rejectionhandl
     }
     if (error) {
         hasErrorEvent = true;
-        window.addEventListener('error', handleError);
+        window.addEventListener('error', handleError, true);
     }
     if (unhandledrejection) {
         hasUnhandledRejectionEvent = true;

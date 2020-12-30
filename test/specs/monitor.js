@@ -189,4 +189,50 @@ describe('monitor', () => {
 
         window.dispatchEvent(rejectionEvent);
     });
+
+    it('Should dispatch an error when an image fails to load', (done) => {
+        const onerror = window.onerror;
+        window.onerror = undefined;
+
+        let stop, unsubscribe, img;
+
+        unsubscribe = subscribe((err) => {
+            expect(err).to.be.an.instanceof(Exception);
+
+            stop();
+            unsubscribe();
+            window.onerror = onerror;
+            img.remove();
+            done();
+        });
+
+        stop = monitor();
+
+        img = new Image();
+        img.src = '/path/to/nowhere';
+        document.body.appendChild(img);
+    });
+
+    it('Should dispatch an error when a script fails to load', (done) => {
+        const onerror = window.onerror;
+        window.onerror = undefined;
+
+        let stop, unsubscribe, script;
+
+        unsubscribe = subscribe((err) => {
+            expect(err).to.be.an.instanceof(Exception);
+
+            stop();
+            unsubscribe();
+            window.onerror = onerror;
+            script.remove();
+            done();
+        });
+
+        stop = monitor();
+
+        script = document.createElement('script');
+        script.src = '/path/to/nowhere';
+        document.body.appendChild(script);
+    });
 });
