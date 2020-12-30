@@ -1,6 +1,6 @@
 {
   "name": "blunder",
-  "description": "Client-side JavaScript error handler",
+  "description": "A modern client-side JavaScript error handler",
   "version": "0.1.0",
   "license": "Unlicense",
   "author": "Ryan Morr",
