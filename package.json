@@ -1,5 +1,5 @@
 {
-  "name": "blunder",
+  "name": "@ryanmorr/blunder",
   "description": "A modern client-side JavaScript error handler",
   "version": "0.1.0",
   "license": "Unlicense",
