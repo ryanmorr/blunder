@@ -1,14 +1,14 @@
 # blunder
 
 [![Version Badge][version-image]][project-url]
-[![Build Status][build-image]][build-url]
 [![License][license-image]][license-url]
+[![Build Status][build-image]][build-url]
 
 > A modern client-side JavaScript error handler
 
 ## Install
 
-Download the [CJS](https://github.com/ryanmorr/blunder/raw/master/dist/blunder.cjs.js), [ESM](https://github.com/ryanmorr/blunder/raw/master/dist/blunder.esm.js), [UMD](https://github.com/ryanmorr/blunder/raw/master/dist/blunder.umd.js) versions or install via NPM:
+Download the [CJS](https://github.com/ryanmorr/blunder/raw/master/dist/cjs/blunder.js), [ESM](https://github.com/ryanmorr/blunder/raw/master/dist/esm/blunder.js), [UMD](https://github.com/ryanmorr/blunder/raw/master/dist/umd/blunder.js) versions or install via NPM:
 
 ```sh
 npm install @ryanmorr/blunder
@@ -16,7 +16,7 @@ npm install @ryanmorr/blunder
 
 ## Usage
 
-Blunder offers the ability to enhance, dispatch, capture, and report JavaScript errors in the browser.
+Blunder offers the ability to enhance, dispatch, capture, and report JavaScript errors in the browser:
 
 ```javascript
 import { monitor, subscribe, dispatch, report } from '@ryanmorr/blunder';
@@ -38,9 +38,9 @@ dispatch('An error occurred!');
 
 ## API
 
-### Exception(message?, detail?)
+### `Exception(message?, detail?)`
 
-`Exception` is a subclass of the global `Error` class for creating errors with enhanced capabilities, including metadata, custom details, a formatted stacktrace, and easy serialization to JSON:
+`Exception` is a subclass of the `Error` class for creating errors with enhanced capabilities, including metadata, custom details, a formatted stacktrace, and easy serialization to JSON:
 
 ```javascript
 import { Exception } from '@ryanmorr/blunder';
@@ -94,7 +94,7 @@ class CustomException extends Exception {}
 `Exception` also has a static `from` method that can be used to convert a value into an `Exception` instance:
 
 ```javascript
-// Supports strings
+// Supports error messages as strings
 const ex = Exception.from('error');
 
 // Supports normal error instances (will copy message and stack properties)
@@ -106,9 +106,11 @@ const ex = CustomException.from('error');
 ex instanceof CustomException; //=> true
 ```
 
-### dispatch(error, detail?)
+------
 
-Manually dispatch an error to the global error subscribers, it returns the dispatched `Exception` instance:
+### `dispatch(error, detail?)`
+
+Manually dispatch an `Exception` to the error subscribers and return the `Exception` instance:
 
 ```javascript
 import { dispatch } from '@ryanmorr/blunder';
@@ -117,14 +119,15 @@ import { dispatch } from '@ryanmorr/blunder';
 const ex = dispatch('error');
 
 // Supports normal error instances
-const error = new Error();
-dispatch(error);
+dispatch(new Error());
 
 // Supports custom details as an optional second argument
 dispatch('error', {foo: 1, bar: 2});
 ```
 
-### subscribe(callback)
+------
+
+### `subscribe(callback)`
 
 Subscribe a callback function to be invoked with an `Exception` instance when an error is dispatched, it returns an unsubscribe function:
 
@@ -136,7 +139,9 @@ const unsubscribe = subscribe((ex) => {
 });
 ```
 
-### monitor(config?)
+------
+
+### `monitor(config?)`
 
 Enable global error monitoring by listening for the `error`, `unhandledrejection`, and `rejectionhandled` events. To customize which events to listen for, provide an object with the event name as the key and a boolean as the value to indicate inclusion of the event. It returns a function to disable monitoring:
 
@@ -154,7 +159,9 @@ monitor({
 });
 ```
 
-### report(url, data)
+------
+
+### `report(url, data)`
 
 Send errors to the server and return a promise that is fulfilled with the JSON response from the server and rejected with an `Exception` instance:
 
@@ -169,7 +176,9 @@ report('/path/to/error/logger', ex).then((response) => {
 });
 ```
 
-### stacktrace(error?)
+------
+
+### `stacktrace(error?)`
 
 Generate a formatted stacktrace:
 
@@ -186,9 +195,11 @@ const trace = stacktrace(error);
 const trace = stacktrace(error.stack);
 ```
 
-### attempt(fn)
+------
 
-A simple wrapper for a `try/catch` block that returns a promise. The promise is fulfilled with the return value of the function argument if it executed without throwing an error. The promise is rejected with an `Exception` instance when an error is thrown which is automatically dispatched to the global error subscribers:
+### `attempt(fn)`
+
+A simple wrapper for a `try/catch` block that returns a promise. The promise is fulfilled with the return value of the function argument if it executed without throwing an error. The promise is rejected with an `Exception` instance when an error is thrown which is automatically dispatched to the error subscribers:
 
 ```javascript
 import { attempt } from '@ryanmorr/blunder';
@@ -207,8 +218,8 @@ attempt(() => {
 This project is dedicated to the public domain as described by the [Unlicense](http://unlicense.org/).
 
 [project-url]: https://github.com/ryanmorr/blunder
-[version-image]: https://badge.fury.io/gh/ryanmorr%2Fblunder.svg
-[build-url]: https://travis-ci.org/ryanmorr/blunder
-[build-image]: https://travis-ci.org/ryanmorr/blunder.svg
-[license-image]: https://img.shields.io/badge/license-Unlicense-blue.svg
+[version-image]: https://img.shields.io/github/package-json/v/ryanmorr/blunder?color=blue&style=flat-square
+[build-url]: https://github.com/ryanmorr/blunder/actions
+[build-image]: https://img.shields.io/github/actions/workflow/status/ryanmorr/blunder/node.js.yml?style=flat-square
+[license-image]: https://img.shields.io/github/license/ryanmorr/blunder?color=blue&style=flat-square
 [license-url]: UNLICENSE
