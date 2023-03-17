@@ -24,15 +24,15 @@ describe('Exception', () => {
     it('should support the name property', () => {
         const error1 = new Exception();
         expect(error1.name).to.equal('Exception');
-        expect(error1.propertyIsEnumerable('name')).to.equal(false);
+        expect({}.propertyIsEnumerable.call(error1, 'name')).to.equal(false);
 
         const error2 = new TestError();
         expect(error2.name).to.equal('TestError');
-        expect(error2.propertyIsEnumerable('name')).to.equal(false);
+        expect({}.propertyIsEnumerable.call(error2, 'name')).to.equal(false);
 
         const error3 = new SubTestError();
         expect(error3.name).to.equal('SubTestError');
-        expect(error3.propertyIsEnumerable('name')).to.equal(false);
+        expect({}.propertyIsEnumerable.call(error3, 'name')).to.equal(false);
     });
 
     it('should support the message property', () => {
