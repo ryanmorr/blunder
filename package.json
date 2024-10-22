@@ -5,8 +5,11 @@
   "license": "Unlicense",
   "author": "Ryan Morr",
   "homepage": "https://github.com/ryanmorr/blunder",
-  "repository": "github:ryanmorr/blunder",
   "bugs": "https://github.com/ryanmorr/blunder/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanmorr/blunder.git"
+  },
   "keywords": [
     "javascript",
     "error handling",
