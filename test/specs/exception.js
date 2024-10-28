@@ -60,6 +60,27 @@ describe('Exception', () => {
         Error.captureStackTrace = captureStackTrace;
     });
 
+    it('should support the cause property', () => {
+        const error1 = new Exception();
+        expect(error1.cause).to.equal(null);
+
+        const error2 = new Exception('error', {cause: error1});
+        expect(error2.cause).to.equal(error1);
+    });
+
+    it('should support an array for the cause property', () => {
+        const error1 = new Error();
+        const error2 = new Error();
+        const error3 = new Error();
+
+        const error4 = new Exception('error', {cause: [error1, error2, error3]});
+        expect(error4.cause).to.be.an('array');
+        expect(error4.cause).to.have.lengthOf(3);
+        expect(error4.cause).to.include(error1);
+        expect(error4.cause).to.include(error2);
+        expect(error4.cause).to.include(error3);
+    });
+
     it('should support the toString method', () => {
         const error1 = new Exception();
         expect(error1.toString()).to.equal('Exception');
@@ -72,78 +93,22 @@ describe('Exception', () => {
     });
 
     it('should support metadata', () => {
-        const cookie = 'foo=bar';
-        document.cookie = cookie;
-        
-        const error = new Exception();
-
-        expect(error.meta).to.be.an('object');
-
-        const meta = error.meta;
-
-        expect(meta).to.have.property('timestamp');
-        expect(meta.timestamp).to.be.a('number');
-
-        expect(meta).to.have.property('datetime');
-        expect(meta.datetime).to.be.a('string');
-
-        expect(meta).to.have.property('userAgent');
-        expect(meta.userAgent).to.equal(navigator.userAgent);
-
-        expect(meta).to.have.property('url');
-        expect(meta.url).to.equal(document.location.href);
-
-        expect(meta).to.have.property('referrer');
-        expect(meta.referrer).to.equal(document.referrer);
-
-        expect(meta).to.have.property('cookie');
-        expect(meta.cookie).to.equal(navigator.cookieEnabled ? cookie : '<disabled>');
-
-        expect(meta).to.have.property('language');
-        expect(meta.language).to.equal(navigator.language || navigator.userLanguage);
-
-        expect(meta).to.have.property('readyState');
-        expect(meta.readyState).to.equal(document.readyState);
-
-        expect(meta).to.have.property('viewportWidth');
-        expect(meta.viewportWidth).to.equal(window.innerWidth);
-
-        expect(meta).to.have.property('viewportHeight');
-        expect(meta.viewportHeight).to.equal(window.innerHeight);
-
-        expect(meta).to.have.property('orientation');
-        if (screen && screen.orientation && screen.orientation.type) {
-            expect(meta.orientation).to.equal(screen.orientation.type);
-        } else {
-            expect(meta.orientation).to.equal(document.documentElement.clientWidth > document.documentElement.clientHeight ? 'landscape' : 'portrait');
-        }
-
-        if (navigator.connection && navigator.connection.effectiveType) {
-            expect(meta).to.have.property('connection');
-            expect(meta.connection).to.equal(navigator.connection.effectiveType);
-        }
-
-        if (window.performance && window.performance.memory) {
-            expect(meta).to.have.property('memory');
-            expect(meta).to.have.property('memoryPercent');
-        }
-    });
-
-    it('should support custom details', () => {
         const error1 = new Exception();
-        expect(error1.detail).to.be.an('object');
-        expect(error1.detail).to.deep.equal({});
+        expect(error1.data).to.be.an('object');
+        expect(error1.data).to.deep.equal({});
+        expect({}.propertyIsEnumerable.call(error1, 'data')).to.equal(false);
 
-        const error2 = new Exception('error message', {
-            foo: 1,
-            bar: 2,
-            baz: 3
-        });
-        expect(error2.detail).to.deep.equal({
-            foo: 1,
-            bar: 2,
-            baz: 3
-        });
+        const error2 = new Exception('error', {foo: 100});
+        expect(error2.data).to.be.an('object');
+        expect(error2.data).to.deep.equal({foo: 100});
+
+        const error3 = new Exception('error', {cause: error1});
+        expect(error3.data).to.be.an('object');
+        expect(error3.data).to.deep.equal({});
+
+        const error4 = new Exception('error', {cause: error1, foo: 1, bar: 2, baz: 3});
+        expect(error4.data).to.be.an('object');
+        expect(error4.data).to.deep.equal({foo: 1, bar: 2, baz: 3});
     });
 
     it('should serialize an Exception into JSON', () => {
@@ -153,9 +118,8 @@ describe('Exception', () => {
             name: error.name,
             message: error.message,
             stack: error.stack,
-            detail: error.detail,
-            meta: error.meta,
-            stacktrace: error.stacktrace
+            cause: error.cause,
+            data: error.data
         };
 
         const jsonData = error.toJSON();
@@ -172,8 +136,8 @@ describe('Exception', () => {
             date
         });
 
-        const data = JSON.parse(JSON.stringify(error));
-        expect(data.detail.date).to.equal(date.toString());
+        const jsonData = JSON.parse(JSON.stringify(error));
+        expect(jsonData.data.date).to.equal(date.toString());
     });
 
     it('should serialize functions to its string representation', () => {
@@ -182,8 +146,8 @@ describe('Exception', () => {
             fn: foo
         });
 
-        const data = JSON.parse(JSON.stringify(error));
-        expect(data.detail.fn).to.equal(foo.toString());
+        const jsonData = JSON.parse(JSON.stringify(error));
+        expect(jsonData.data.fn).to.equal(foo.toString());
     });
 
     it('should convert a normal Error into an Exception', () => {
@@ -196,7 +160,7 @@ describe('Exception', () => {
         expect(ex1.message).to.equal(error.message);
         expect(ex1.stack).to.equal(error.stack);
         expect(ex1.stacktrace).to.deep.equal(stack);
-        expect(ex1.source).to.equal(error);
+        expect(ex1.cause).to.equal(error);
 
         const ex2 = TestError.from(error);
         expect(ex2).to.be.an.instanceof(TestError);
@@ -204,7 +168,7 @@ describe('Exception', () => {
         expect(ex2.message).to.equal(error.message);
         expect(ex2.stack).to.equal(error.stack);
         expect(ex2.stacktrace).to.deep.equal(stack);
-        expect(ex2.source).to.equal(error);
+        expect(ex2.cause).to.equal(error);
 
         const ex3 = SubTestError.from(error);
         expect(ex3).to.be.an.instanceof(SubTestError);
@@ -212,7 +176,7 @@ describe('Exception', () => {
         expect(ex3.message).to.equal(error.message);
         expect(ex3.stack).to.equal(error.stack);
         expect(ex3.stacktrace).to.deep.equal(stack);
-        expect(ex3.source).to.equal(error);
+        expect(ex3.cause).to.equal(error);
     });
 
     it('should convert a string into an Exception', () => {
@@ -234,45 +198,72 @@ describe('Exception', () => {
     it('should not convert an object if it already is an Exception', () => {
         const ex1 = new Exception('error message');
         expect(Exception.from(ex1)).to.equal(ex1);
+        expect(ex1.cause).to.not.equal(ex1);
 
         const ex2 = new TestError('error message');
         expect(TestError.from(ex2)).to.equal(ex2);
         expect(Exception.from(ex2)).to.equal(ex2);
+        expect(ex2.cause).to.not.equal(ex2);
 
         const ex3 = new SubTestError('error message');
         expect(SubTestError.from(ex3)).to.equal(ex3);
         expect(TestError.from(ex3)).to.equal(ex3);
         expect(Exception.from(ex3)).to.equal(ex3);
+        expect(ex3.cause).to.not.equal(ex3);
     });
 
-    it('should convert a normal Error into an Exception with custom details', () => {
+    it('should convert a thrown error string into an Exception', () => {
+        try {
+            throw 'error message';
+        } catch(e) {
+            const error = Exception.from(e);
+            expect(error.message).to.equal('error message');
+        }
+    });
+
+    it('should convert an AggregateError into an Exception', () => {
+        const error1 = new Error();
+        const error2 = new Error();
+        const error3 = new Error();
+        const aggregateError = new AggregateError([error1, error2, error3]);
+
+        const ex = Exception.from(aggregateError);
+
+        expect(ex.cause).to.be.an('array');
+        expect(ex.cause).to.have.lengthOf(3);
+        expect(ex.cause).to.include(error1);
+        expect(ex.cause).to.include(error2);
+        expect(ex.cause).to.include(error3);
+    });
+
+    it('should convert a normal Error into an Exception with custom metadata', () => {
         const error = new Error('error message');
 
-        const detail = {
+        const data = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        const ex = Exception.from(error, detail);
+        const ex = Exception.from(error, data);
 
-        expect(ex.detail).to.deep.equal(detail);
+        expect(ex.data).to.deep.equal(data);
     });
 
-    it('should convert a string into an Exception with custom details', () => {
+    it('should convert a string into an Exception with custom metadata', () => {
         const message = 'error message';
-        const detail = {
+        const data = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        const ex = Exception.from(message, detail);
+        const ex = Exception.from(message, data);
 
-        expect(ex.detail).to.deep.equal(detail);
+        expect(ex.data).to.deep.equal(data);
     });
 
-    it('should merge custom details into an Exception', () => {
+    it('should merge custom metadata into an Exception', () => {
         const error = new Exception('error message', {
             foo: 1
         });
@@ -282,7 +273,28 @@ describe('Exception', () => {
             baz: 3
         });
 
-        expect(ex.detail).to.deep.equal({
+        expect(ex.data).to.deep.equal({
+            foo: 1,
+            bar: 2,
+            baz: 3
+        });
+    });
+
+    it('should merge cause and custom metadata into an Exception', () => {
+        const error = new Error();
+
+        const ex1 = new Exception('error message', {
+            foo: 1
+        });
+
+        const ex2 = Exception.from(ex1, {
+            cause: error,
+            bar: 2,
+            baz: 3
+        });
+
+        expect(ex2.cause).to.equal(error);
+        expect(ex2.data).to.deep.equal({
             foo: 1,
             bar: 2,
             baz: 3

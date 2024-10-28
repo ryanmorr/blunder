@@ -13,8 +13,8 @@ export function subscribe(callback) {
     };
 }
 
-export function dispatch(error, details) {
-    const ex = Exception.from(error, details);
+export function dispatch(error, options) {
+    const ex = Exception.from(error, options);
     if (dispatched.has(ex)) {
         return ex;
     }

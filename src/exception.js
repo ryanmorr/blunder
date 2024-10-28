@@ -1,29 +1,30 @@
-import { getMetaData } from './metadata';
 import { stacktrace } from './stacktrace';
+
+function setProperty(obj, name, value) {
+    Object.defineProperty(obj, name, {
+        configurable: true,
+        enumerable : false,
+        value : value,
+        writable : true,
+    });
+}
 
 export class Exception extends Error {
 
-    constructor(message, detail = {}) {
-        super(message);
-        Object.defineProperty(this, 'name', {
-            configurable: true,
-            enumerable : false,
-            value : this.constructor.name,
-            writable : true,
-        });
+    constructor(message, options = {}) {
+        const {cause: cause = null, ...data} = options;
+        super(message, {cause});
+        setProperty(this, 'name', this.constructor.name);
+        if (!('cause' in this)) {
+            setProperty(this, 'cause', cause);
+        }
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, this.constructor);
         }
         if (typeof this.stack !== 'string') {
-            Object.defineProperty(this, 'stack', {
-                configurable: true,
-                enumerable : false,
-                value : (new Error(message)).stack,
-                writable : true,
-            });
+            setProperty(this, 'stack', (new Error(message)).stack);
         }
-        this.detail = detail;
-        this.meta = getMetaData();
+        setProperty(this, 'data', data);
     }
 
     get stacktrace() {
@@ -38,34 +39,38 @@ export class Exception extends Error {
             name: this.name,
             message: this.message,
             stack: this.stack,
-            meta: this.meta,
-            stacktrace: this.stacktrace,
-            detail: Object.keys(this.detail).reduce((detail, key) => {
-                let val = this.detail[key];
-                const type = {}.toString.call(val).slice(8, -1);
+            cause: this.cause,
+            data: Object.keys(this.data).reduce((data, key) => {
+                let val = this.data[key];
+                const type = {}.toString.call(val).slice(8, -1)
                 if (type === 'Date' || type === 'Function') {
                     val = val.toString();
                 }
-                detail[key] = val;
-                return detail;
+                data[key] = val;
+                return data;
             }, {})
         };
     }
 
-    static from(error, detail) {
+    static from(error, options) {
         const constructor = this;
         if (error instanceof constructor) {
-            if (detail) {
-                error.detail = Object.assign(error.detail, detail);
+            if (options) {
+                const {cause: cause = null, ...data} = options;
+                Object.assign(error.data, data);
+                if (cause) {
+                    error.cause = cause;
+                }
             }
             return error;
         }
         if (error instanceof Error) {
-            const ex = new constructor(error.message, detail);
+            const errors = error.errors;
+            const ex = new constructor(error.message, options);
             ex.stack = error.stack;
-            ex.source = error;
+            ex.cause = errors ? (errors.length === 1 ? errors[0] : errors) : error;
             return ex;
         }
-        return new constructor(error, detail);
+        return new constructor(String(error), options);
     }
 }

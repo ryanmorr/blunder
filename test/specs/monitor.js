@@ -1,7 +1,7 @@
 import { monitor, subscribe, Exception } from '../../src/blunder';
 
 describe('monitor', () => {
-    it('Should add all global error event listeners by default', () => {
+    it('should add all global error event listeners by default', () => {
         const spy = sinon.spy(window, 'addEventListener');
 
         const stop = monitor();
@@ -15,7 +15,7 @@ describe('monitor', () => {
         stop();
     });
 
-    it('Should remove all global error event listeners by default', () => {
+    it('should remove all global error event listeners by default', () => {
         const spy = sinon.spy(window, 'removeEventListener');
 
         const stop = monitor();
@@ -32,7 +32,7 @@ describe('monitor', () => {
         spy.restore();
     });
 
-    it('Should allow adding only the global error event listener', () => {
+    it('should allow adding only the global error event listener', () => {
         const addSpy = sinon.spy(window, 'addEventListener');
         const removeSpy = sinon.spy(window, 'removeEventListener');
 
@@ -49,7 +49,7 @@ describe('monitor', () => {
         removeSpy.restore();
     });
 
-    it('Should allow adding only the global unhandledrejection event listener', () => {
+    it('should allow adding only the global unhandledrejection event listener', () => {
         const addSpy = sinon.spy(window, 'addEventListener');
         const removeSpy = sinon.spy(window, 'removeEventListener');
 
@@ -66,7 +66,7 @@ describe('monitor', () => {
         removeSpy.restore();
     });
 
-    it('Should allow adding only the global rejectionhandled event listener', () => {
+    it('should allow adding only the global rejectionhandled event listener', () => {
         const addSpy = sinon.spy(window, 'addEventListener');
         const removeSpy = sinon.spy(window, 'removeEventListener');
 
@@ -83,7 +83,7 @@ describe('monitor', () => {
         removeSpy.restore();
     });
 
-    it('Should not add or remove more than one event listener for each global error event type', () => {
+    it('should not add or remove more than one event listener for each global error event type', () => {
         const addSpy = sinon.spy(window, 'addEventListener');
         const removeSpy = sinon.spy(window, 'removeEventListener');
 
@@ -107,7 +107,7 @@ describe('monitor', () => {
         removeSpy.restore();
     });
 
-    it('Should dispatch an error when a global error event is dispatched', (done) => {
+    it('should dispatch an error when a global error event is dispatched', (done) => {
         const onerror = window.onerror;
         window.onerror = undefined;
 
@@ -123,7 +123,8 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.source).to.equal(error);
+            expect(err.cause).to.equal(error);
+            expect(err.data.event).to.equal(errorEvent);
 
             stop();
             unsubscribe();
@@ -136,7 +137,7 @@ describe('monitor', () => {
         window.dispatchEvent(errorEvent);
     });
 
-    it('Should dispatch an error when a rejectionhandled event is dispatched', (done) => {
+    it('should dispatch an error when a rejectionhandled event is dispatched', (done) => {
         let stop, unsubscribe;
 
         const message = 'An error occurred';
@@ -150,8 +151,10 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.source).to.equal(error);
-            expect(err.detail.promise).to.equal(promise);
+            expect(err.cause).to.equal(error);
+            expect(err.data.event).to.equal(rejectionEvent);
+            expect(err.data.event.reason).to.equal(error);
+            expect(err.data.event.promise).to.equal(promise);
 
             stop();
             unsubscribe();
@@ -163,7 +166,7 @@ describe('monitor', () => {
         window.dispatchEvent(rejectionEvent);
     });
 
-    it('Should dispatch an error when an unhandledrejection event is dispatched', (done) => {
+    it('should dispatch an error when an unhandledrejection event is dispatched', (done) => {
         let stop, unsubscribe;
 
         const message = 'An error occurred';
@@ -177,8 +180,10 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.source).to.equal(error);
-            expect(err.detail.promise).to.equal(promise);
+            expect(err.cause).to.equal(error);
+            expect(err.data.event).to.equal(rejectionEvent);
+            expect(err.data.event.reason).to.equal(error);
+            expect(err.data.event.promise).to.equal(promise);
 
             stop();
             unsubscribe();
@@ -190,7 +195,98 @@ describe('monitor', () => {
         window.dispatchEvent(rejectionEvent);
     });
 
-    it('Should dispatch an error when an image fails to load', (done) => {
+    it('should dispatch an error when a promise is rejected with a string', (done) => {
+        let stop, unsubscribe;
+
+        const message = 'An error occurred';
+        const promise = Promise.reject(message);
+        const rejectionEvent = new PromiseRejectionEvent('rejectionhandled', {
+            reason: message,
+            promise
+        });
+
+        unsubscribe = subscribe((err) => {
+            expect(err).to.be.an.instanceof(Exception);
+            expect(err.message).to.equal(message);
+            expect(err.cause).to.equal(null);
+            expect(err.data.event).to.equal(rejectionEvent);
+            expect(err.data.event.reason).to.equal(message);
+            expect(err.data.event.promise).to.equal(promise);
+
+            stop();
+            unsubscribe();
+            done();
+        });
+
+        stop = monitor();
+
+        window.dispatchEvent(rejectionEvent);
+    });
+
+    it('should dispatch an AggregateError with a single error', (done) => {
+        let stop, unsubscribe;
+
+        const error = new Error();
+        const aggregateError = new AggregateError([error]);
+        const promise = Promise.reject(error);
+        const rejectionEvent = new PromiseRejectionEvent('unhandledrejection', {
+            reason: aggregateError,
+            promise
+        });
+
+        unsubscribe = subscribe((err) => {
+            expect(err).to.be.an.instanceof(Exception);
+            expect(err.cause).to.equal(error);
+            expect(err.data.event).to.be.an.instanceof(PromiseRejectionEvent);
+            expect(err.data.event.reason).to.be.an.instanceof(AggregateError);
+            expect(err.data.event.reason.errors[0]).to.equal(error);
+
+            stop();
+            unsubscribe();
+            done();
+        });
+
+        stop = monitor();
+
+        window.dispatchEvent(rejectionEvent);
+    });
+
+    it('should dispatch an AggregateError with multiple errors', (done) => {
+        let stop, unsubscribe;
+
+        const error1 = new Error();
+        const error2 = new Error();
+        const error3 = new Error();
+        const errors = [error1, error2, error3];
+        const aggregateError = new AggregateError(errors);
+        const promise = Promise.reject(errors);
+        const rejectionEvent = new PromiseRejectionEvent('unhandledrejection', {
+            reason: aggregateError,
+            promise
+        });
+
+        unsubscribe = subscribe((err) => {
+            expect(err).to.be.an.instanceof(Exception);
+            expect(err.cause).to.be.an('array');
+            expect(err.cause).to.have.lengthOf(3);
+            expect(err.cause).to.include(error1);
+            expect(err.cause).to.include(error2);
+            expect(err.cause).to.include(error3);
+            expect(err.data.event).to.be.an.instanceof(PromiseRejectionEvent);
+            expect(err.data.event.reason).to.be.an.instanceof(AggregateError);
+            expect(err.data.event.reason.errors).to.equal(err.cause);
+
+            stop();
+            unsubscribe();
+            done();
+        });
+
+        stop = monitor();
+
+        window.dispatchEvent(rejectionEvent);
+    });
+
+    it('should dispatch an error when an image fails to load', (done) => {
         const onerror = window.onerror;
         window.onerror = undefined;
 
@@ -213,7 +309,7 @@ describe('monitor', () => {
         document.body.appendChild(img);
     });
 
-    it('Should dispatch an error when a script fails to load', (done) => {
+    it('should dispatch an error when a script fails to load', (done) => {
         const onerror = window.onerror;
         window.onerror = undefined;
 

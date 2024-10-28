@@ -98,7 +98,7 @@ describe('bus', () => {
         const error = callback.args[0][0];
         expect(error).to.be.an.instanceof(Exception);
         expect(error.message).to.equal(message);
-        expect(error.source).to.equal(err);
+        expect(error.cause).to.equal(err);
 
         unsubscribe();
     });
@@ -117,20 +117,20 @@ describe('bus', () => {
         unsubscribe();
     });
 
-    it('should dispatch an error with custom details', () => {
+    it('should dispatch an error with custom metadata', () => {
         const callback = sinon.spy();
         const unsubscribe = subscribe(callback);
         
         const error = new Error();
-        const detail = {
+        const data = {
             foo: 1,
             bar: 2,
             baz: 3
         };
 
-        expect(dispatch(error, detail)).to.be.an.instanceof(Exception);
+        expect(dispatch(error, data)).to.be.an.instanceof(Exception);
         
-        expect(callback.args[0][0].detail).to.deep.equal(detail);
+        expect(callback.args[0][0].data).to.deep.equal(data);
 
         unsubscribe();
     });

@@ -5,19 +5,19 @@ let hasErrorEvent = false;
 let hasUnhandledRejectionEvent = false;
 let hasRejectionHandledEvent = false;
 
-function handleError(e) {
-    e.preventDefault();
-    dispatch(Exception.from(e.error));
+function handleError(event) {
+    event.preventDefault();
+    dispatch(Exception.from(event.error, {event}));
 }
 
-function handleUnhandledRejection(e) {
-    e.preventDefault();
-    dispatch(Exception.from(e.reason, {promise: e.promise}));
+function handleUnhandledRejection(event) {
+    event.preventDefault();
+    dispatch(Exception.from(event.reason, {event}));
 }
 
-function handleRejectionHandled(e) {
-    e.preventDefault();
-    dispatch(Exception.from(e.reason, {promise: e.promise}));
+function handleRejectionHandled(event) {
+    event.preventDefault();
+    dispatch(Exception.from(event.reason, {event}));
 }
 
 function removeListeners() {
