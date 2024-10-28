@@ -1,4 +1,4 @@
-import { Exception, stacktrace } from '../../src/blunder';
+import { Exception } from '../../src/blunder';
 
 class TestError extends Exception {}
 class SubTestError extends TestError {}
@@ -152,14 +152,12 @@ describe('Exception', () => {
 
     it('should convert a normal Error into an Exception', () => {
         const error = new Error('error message');
-        const stack = stacktrace(error.stack);
 
         const ex1 = Exception.from(error);
         expect(ex1).to.be.an.instanceof(Exception);
         expect(ex1.name).to.equal('Exception');
         expect(ex1.message).to.equal(error.message);
         expect(ex1.stack).to.equal(error.stack);
-        expect(ex1.stacktrace).to.deep.equal(stack);
         expect(ex1.cause).to.equal(error);
 
         const ex2 = TestError.from(error);
@@ -167,7 +165,6 @@ describe('Exception', () => {
         expect(ex2.name).to.equal('TestError');
         expect(ex2.message).to.equal(error.message);
         expect(ex2.stack).to.equal(error.stack);
-        expect(ex2.stacktrace).to.deep.equal(stack);
         expect(ex2.cause).to.equal(error);
 
         const ex3 = SubTestError.from(error);
@@ -175,7 +172,6 @@ describe('Exception', () => {
         expect(ex3.name).to.equal('SubTestError');
         expect(ex3.message).to.equal(error.message);
         expect(ex3.stack).to.equal(error.stack);
-        expect(ex3.stacktrace).to.deep.equal(stack);
         expect(ex3.cause).to.equal(error);
     });
 
@@ -299,23 +295,5 @@ describe('Exception', () => {
             bar: 2,
             baz: 3
         });
-    });
-
-    it('should support a parsed stacktrace property', () => {
-        const foo = () => bar();
-        const bar = () => baz();
-        const baz = () => qux();
-        
-        const qux = () => {
-            const error = new Exception();
-            expect(error.stacktrace).to.be.an('array');
-            expect(error.stacktrace.length > 0).to.equal(true);
-            expect(error.stacktrace[0].functionName).to.equal('qux');
-            expect(error.stacktrace[1].functionName).to.equal('baz');
-            expect(error.stacktrace[2].functionName).to.equal('bar');
-            expect(error.stacktrace[3].functionName).to.equal('foo');
-        };
-        
-        foo();
     });
 });

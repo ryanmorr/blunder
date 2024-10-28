@@ -1,5 +1,3 @@
-import { stacktrace } from './stacktrace';
-
 function setProperty(obj, name, value) {
     Object.defineProperty(obj, name, {
         configurable: true,
@@ -25,13 +23,6 @@ export class Exception extends Error {
             setProperty(this, 'stack', (new Error(message)).stack);
         }
         setProperty(this, 'data', data);
-    }
-
-    get stacktrace() {
-        if (!this._stacktrace) {
-            this._stacktrace = stacktrace(this.stack);
-        }
-        return this._stacktrace;
     }
 
     toJSON() {
