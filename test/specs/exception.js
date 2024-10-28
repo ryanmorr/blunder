@@ -232,6 +232,18 @@ describe('Exception', () => {
         expect(ex.cause).to.include(error3);
     });
 
+    it('should convert a DOMException into an Exception', () => {
+        const error = new DOMException('error message');
+
+        const ex = Exception.from(error);
+
+        expect(ex).to.be.an.instanceof(Exception);
+        expect(ex.name).to.equal('Exception');
+        expect(ex.message).to.equal(error.message);
+        expect(ex.stack).to.equal(error.stack);
+        expect(ex.cause).to.equal(error);
+    });
+
     it('should convert a normal Error into an Exception with custom metadata', () => {
         const error = new Error('error message');
 
