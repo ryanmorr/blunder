@@ -1,5 +1,7 @@
 import { monitor, subscribe, Exception } from '../../src/blunder';
 
+/* global AggregateError */
+
 describe('monitor', () => {
     it('should add all global error event listeners by default', () => {
         const spy = sinon.spy(window, 'addEventListener');

@@ -1,5 +1,7 @@
 import { Exception } from '../../src/blunder';
 
+/* global AggregateError */
+
 class TestError extends Exception {}
 class SubTestError extends TestError {}
 
@@ -111,43 +113,31 @@ describe('Exception', () => {
         expect(error4.data).to.deep.equal({foo: 1, bar: 2, baz: 3});
     });
 
-    it('should serialize an Exception into JSON', () => {
-        const error = new Exception('error message');
-
-        const data = {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            cause: error.cause,
-            data: error.data
-        };
-
-        const jsonData = error.toJSON();
-        expect(jsonData).to.deep.equal(data);
-
-        const json = JSON.stringify(error);
-        expect(json).to.be.a('string');
-        expect(JSON.parse(json)).to.deep.equal(data);
-    });
-
-    it('should serialize dates to long form strings', () => {
+    it('should serialize an Exception', () => {
+        const error = new Error();
+        const fn = function() {};
         const date = new Date();
-        const error = new Exception('error message', {
+
+        const ex = new Exception('error message', {
+            cause: error,
+            fn,
             date
         });
 
-        const jsonData = JSON.parse(JSON.stringify(error));
-        expect(jsonData.data.date).to.equal(date.toString());
-    });
-
-    it('should serialize functions to its string representation', () => {
-        const foo = () => {};
-        const error = new Exception('error message', {
-            fn: foo
+        expect(ex.toJSON()).to.deep.equal({
+            name: ex.name,
+            message: ex.message,
+            stack: ex.stack,
+            cause: {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            },
+            data: {
+                fn: '[Function: fn]',
+                date: date.toISOString()
+            }
         });
-
-        const jsonData = JSON.parse(JSON.stringify(error));
-        expect(jsonData.data.fn).to.equal(foo.toString());
     });
 
     it('should convert a normal Error into an Exception', () => {

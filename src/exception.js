@@ -1,3 +1,5 @@
+import { serialize } from './serialize';
+
 function setProperty(obj, name, value) {
     Object.defineProperty(obj, name, {
         configurable: true,
@@ -26,21 +28,7 @@ export class Exception extends Error {
     }
 
     toJSON() {
-        return {
-            name: this.name,
-            message: this.message,
-            stack: this.stack,
-            cause: this.cause,
-            data: Object.keys(this.data).reduce((data, key) => {
-                let val = this.data[key];
-                const type = {}.toString.call(val).slice(8, -1)
-                if (type === 'Date' || type === 'Function') {
-                    val = val.toString();
-                }
-                data[key] = val;
-                return data;
-            }, {})
-        };
+        return serialize(this);
     }
 
     static from(error, options) {
