@@ -83,15 +83,15 @@ describe('Exception', () => {
         expect(error4.cause).to.include(error3);
     });
 
-    it('should support the toString method', () => {
-        const error1 = new Exception();
-        expect(error1.toString()).to.equal('Exception');
+    it('should return the name and message in the toString method', () => {
+        const error1 = new Exception('error message');
+        expect(error1.toString()).to.equal('Exception: error message');
 
-        const error2 = new TestError();
-        expect(error2.toString()).to.equal('TestError');
+        const error2 = new TestError('something went wrong');
+        expect(error2.toString()).to.equal('TestError: something went wrong');
 
-        const error3 = new SubTestError();
-        expect(error3.toString()).to.equal('SubTestError');
+        const error3 = new SubTestError('unknown error');
+        expect(error3.toString()).to.equal('SubTestError: unknown error');
     });
 
     it('should support metadata', () => {

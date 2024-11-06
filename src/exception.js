@@ -31,6 +31,10 @@ export class Exception extends Error {
         return serialize(this);
     }
 
+    toString() {
+        return `${this.name}: ${this.message}`;
+    }
+
     static from(error, options) {
         const constructor = this;
         if (error instanceof constructor) {
