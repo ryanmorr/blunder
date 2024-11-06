@@ -7,48 +7,48 @@ class SubTestError extends TestError {}
 
 describe('Exception', () => {
     it('should support subsclassing Exception', () => {
-        const error1 = new Exception();
-        expect(error1).to.be.an.instanceof(Error);
-        expect(error1).to.be.an.instanceof(Exception);
+        const ex1 = new Exception();
+        expect(ex1).to.be.an.instanceof(Error);
+        expect(ex1).to.be.an.instanceof(Exception);
     
-        const error2 = new TestError();
-        expect(error2).to.be.an.instanceof(Error);
-        expect(error2).to.be.an.instanceof(Exception);
-        expect(error2).to.be.an.instanceof(TestError);
+        const ex2 = new TestError();
+        expect(ex2).to.be.an.instanceof(Error);
+        expect(ex2).to.be.an.instanceof(Exception);
+        expect(ex2).to.be.an.instanceof(TestError);
     
-        const error3 = new SubTestError();
-        expect(error3).to.be.an.instanceof(Error);
-        expect(error3).to.be.an.instanceof(Exception);
-        expect(error3).to.be.an.instanceof(TestError);
-        expect(error3).to.be.an.instanceof(SubTestError);
+        const ex3 = new SubTestError();
+        expect(ex3).to.be.an.instanceof(Error);
+        expect(ex3).to.be.an.instanceof(Exception);
+        expect(ex3).to.be.an.instanceof(TestError);
+        expect(ex3).to.be.an.instanceof(SubTestError);
     });
 
     it('should support the name property', () => {
-        const error1 = new Exception();
-        expect(error1.name).to.equal('Exception');
-        expect({}.propertyIsEnumerable.call(error1, 'name')).to.equal(false);
+        const ex1 = new Exception();
+        expect(ex1.name).to.equal('Exception');
+        expect({}.propertyIsEnumerable.call(ex1, 'name')).to.equal(false);
 
-        const error2 = new TestError();
-        expect(error2.name).to.equal('TestError');
-        expect({}.propertyIsEnumerable.call(error2, 'name')).to.equal(false);
+        const ex2 = new TestError();
+        expect(ex2.name).to.equal('TestError');
+        expect({}.propertyIsEnumerable.call(ex2, 'name')).to.equal(false);
 
-        const error3 = new SubTestError();
-        expect(error3.name).to.equal('SubTestError');
-        expect({}.propertyIsEnumerable.call(error3, 'name')).to.equal(false);
+        const ex3 = new SubTestError();
+        expect(ex3.name).to.equal('SubTestError');
+        expect({}.propertyIsEnumerable.call(ex3, 'name')).to.equal(false);
     });
 
     it('should support the message property', () => {
         const msg = 'an error occurred';
-        const error = new Exception(msg);
-        expect(error.message).to.equal(msg);
+        const ex = new Exception(msg);
+        expect(ex.message).to.equal(msg);
     });
 
     it('should support the stack property', () => {
-        const error1 = new Exception();
-        expect(error1.stack).to.be.a('string');
+        const ex1 = new Exception();
+        expect(ex1.stack).to.be.a('string');
 
-        const error2 = new TestError();
-        expect(error2.stack).to.be.a('string');
+        const ex2 = new TestError();
+        expect(ex2.stack).to.be.a('string');
     });
 
     it('should support the stack property when captureStackTrace is not supported', () => {
@@ -56,18 +56,18 @@ describe('Exception', () => {
         Reflect.deleteProperty(Error, 'captureStackTrace');
         expect(Error.captureStackTrace).to.not.exist;
         
-        const error = new Exception();
-        expect(error.stack).to.be.a('string');
+        const ex = new Exception();
+        expect(ex.stack).to.be.a('string');
 
         Error.captureStackTrace = captureStackTrace;
     });
 
     it('should support the cause property', () => {
-        const error1 = new Exception();
-        expect(error1.cause).to.equal(null);
+        const ex1 = new Exception();
+        expect(ex1.cause).to.equal(null);
 
-        const error2 = new Exception('error', {cause: error1});
-        expect(error2.cause).to.equal(error1);
+        const ex2 = new Exception('ex', {cause: ex1});
+        expect(ex2.cause).to.equal(ex1);
     });
 
     it('should support an array for the cause property', () => {
@@ -75,42 +75,42 @@ describe('Exception', () => {
         const error2 = new Error();
         const error3 = new Error();
 
-        const error4 = new Exception('error', {cause: [error1, error2, error3]});
-        expect(error4.cause).to.be.an('array');
-        expect(error4.cause).to.have.lengthOf(3);
-        expect(error4.cause).to.include(error1);
-        expect(error4.cause).to.include(error2);
-        expect(error4.cause).to.include(error3);
+        const ex = new Exception('error message', {cause: [error1, error2, error3]});
+        expect(ex.cause).to.be.an('array');
+        expect(ex.cause).to.have.lengthOf(3);
+        expect(ex.cause).to.include(error1);
+        expect(ex.cause).to.include(error2);
+        expect(ex.cause).to.include(error3);
     });
 
     it('should return the name and message in the toString method', () => {
-        const error1 = new Exception('error message');
-        expect(error1.toString()).to.equal('Exception: error message');
+        const ex1 = new Exception('error message');
+        expect(ex1.toString()).to.equal('Exception: error message');
 
-        const error2 = new TestError('something went wrong');
-        expect(error2.toString()).to.equal('TestError: something went wrong');
+        const ex2 = new TestError('something went wrong');
+        expect(ex2.toString()).to.equal('TestError: something went wrong');
 
-        const error3 = new SubTestError('unknown error');
-        expect(error3.toString()).to.equal('SubTestError: unknown error');
+        const ex3 = new SubTestError('unknown error');
+        expect(ex3.toString()).to.equal('SubTestError: unknown error');
     });
 
     it('should support metadata', () => {
-        const error1 = new Exception();
-        expect(error1.data).to.be.an('object');
-        expect(error1.data).to.deep.equal({});
-        expect({}.propertyIsEnumerable.call(error1, 'data')).to.equal(false);
+        const ex1 = new Exception();
+        expect(ex1.data).to.be.an('object');
+        expect(ex1.data).to.deep.equal({});
+        expect({}.propertyIsEnumerable.call(ex1, 'data')).to.equal(false);
 
-        const error2 = new Exception('error', {foo: 100});
-        expect(error2.data).to.be.an('object');
-        expect(error2.data).to.deep.equal({foo: 100});
+        const ex2 = new Exception('error message', {foo: 100});
+        expect(ex2.data).to.be.an('object');
+        expect(ex2.data).to.deep.equal({foo: 100});
 
-        const error3 = new Exception('error', {cause: error1});
-        expect(error3.data).to.be.an('object');
-        expect(error3.data).to.deep.equal({});
+        const ex3 = new Exception('error message', {cause: ex1});
+        expect(ex3.data).to.be.an('object');
+        expect(ex3.data).to.deep.equal({});
 
-        const error4 = new Exception('error', {cause: error1, foo: 1, bar: 2, baz: 3});
-        expect(error4.data).to.be.an('object');
-        expect(error4.data).to.deep.equal({foo: 1, bar: 2, baz: 3});
+        const ex4 = new Exception('erro message', {cause: ex1, foo: 1, bar: 2, baz: 3});
+        expect(ex4.data).to.be.an('object');
+        expect(ex4.data).to.deep.equal({foo: 1, bar: 2, baz: 3});
     });
 
     it('should serialize an Exception', () => {
@@ -205,8 +205,8 @@ describe('Exception', () => {
         try {
             throw 'error message';
         } catch(e) {
-            const error = Exception.from(e);
-            expect(error.message).to.equal('error message');
+            const ex = Exception.from(e);
+            expect(ex.message).to.equal('error message');
         }
     });
 
@@ -266,17 +266,17 @@ describe('Exception', () => {
     });
 
     it('should merge custom metadata into an Exception', () => {
-        const error = new Exception('error message', {
+        const ex1 = new Exception('error message', {
             foo: 1
         });
 
-        const ex = Exception.from(error, {
+        const ex2 = Exception.from(ex1, {
             bar: 2,
             baz: 3
         });
 
-        expect(ex).to.equal(error);
-        expect(ex.data).to.deep.equal({
+        expect(ex2).to.equal(ex1);
+        expect(ex2.data).to.deep.equal({
             foo: 1,
             bar: 2,
             baz: 3

@@ -11,21 +11,21 @@ describe('bus', () => {
         expect(callback1.callCount).to.equal(0);
         expect(callback2.callCount).to.equal(0);
         
-        const error1 = new Exception();
-        expect(dispatch(error1)).to.equal(error1);
+        const ex1 = new Exception();
+        expect(dispatch(ex1)).to.equal(ex1);
     
         expect(callback1.callCount).to.equal(1);
-        expect(callback1.args[0][0]).to.equal(error1);
+        expect(callback1.args[0][0]).to.equal(ex1);
         expect(callback2.callCount).to.equal(1);
-        expect(callback2.args[0][0]).to.equal(error1);
+        expect(callback2.args[0][0]).to.equal(ex1);
         
-        const error2 = new Exception();
-        expect(dispatch(error2)).to.equal(error2);
+        const ex2 = new Exception();
+        expect(dispatch(ex2)).to.equal(ex2);
     
         expect(callback1.callCount).to.equal(2);
-        expect(callback1.args[1][0]).to.equal(error2);
+        expect(callback1.args[1][0]).to.equal(ex2);
         expect(callback2.callCount).to.equal(2);
-        expect(callback2.args[1][0]).to.equal(error2);
+        expect(callback2.args[1][0]).to.equal(ex2);
 
         unsubscribe1();
         unsubscribe2();
@@ -111,9 +111,9 @@ describe('bus', () => {
         const message = 'An error occurred';
         expect(dispatch(message)).to.be.an.instanceof(Exception);
         
-        const error = callback.args[0][0];
-        expect(error).to.be.an.instanceof(Exception);
-        expect(error.message).to.equal(message);
+        const ex = callback.args[0][0];
+        expect(ex).to.be.an.instanceof(Exception);
+        expect(ex.message).to.equal(message);
 
         unsubscribe();
     });
@@ -137,16 +137,16 @@ describe('bus', () => {
     });
 
     it('should only dispatch an error instance once', () => {
-        const error = new Exception();
+        const ex = new Exception();
         const callback = sinon.spy();
 
         const unsubscribe = subscribe(callback);
     
-        expect(dispatch(error)).to.equal(error);
+        expect(dispatch(ex)).to.equal(ex);
     
         expect(callback.callCount).to.equal(1);
     
-        expect(dispatch(error)).to.equal(error);
+        expect(dispatch(ex)).to.equal(ex);
     
         expect(callback.callCount).to.equal(1);
 

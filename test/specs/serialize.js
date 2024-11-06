@@ -173,15 +173,15 @@ describe('serialize', () => {
     });
 
     it('should serialize an Exception', () => {
-        const error = new Exception('error message');
+        const ex = new Exception('error message');
 
-        const serialized = serialize(error);
+        const serialized = serialize(ex);
 
-        expect(serialized).to.not.equal(error);
+        expect(serialized).to.not.equal(ex);
         expect(serialized).to.deep.equal({
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
+            name: ex.name,
+            message: ex.message,
+            stack: ex.stack,
             cause: null,
             data: {}
         });
@@ -189,15 +189,15 @@ describe('serialize', () => {
 
     it('should serialize an Exception subclass', () => {
         class TestError extends Exception {}
-        const error = new TestError('error message');
+        const ex = new TestError('error message');
 
-        const serialized = serialize(error);
+        const serialized = serialize(ex);
 
-        expect(serialized).to.not.equal(error);
+        expect(serialized).to.not.equal(ex);
         expect(serialized).to.deep.equal({
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
+            name: ex.name,
+            message: ex.message,
+            stack: ex.stack,
             cause: null,
             data: {}
         });
