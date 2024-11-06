@@ -27,7 +27,8 @@ describe('attempt', () => {
         promise.catch((ex) => {
             expect(ex).to.be.an.instanceof(Exception);
             expect(ex.message).to.equal(message);
-            expect(ex.cause).to.equal(error);
+            expect(ex.cause).to.equal(null);
+            expect(ex.source).to.equal(error);
             done();
         });
     });
@@ -65,7 +66,8 @@ describe('attempt', () => {
             expect(callback.args[0][0]).to.equal(ex);
             expect(ex).to.be.an.instanceof(Exception);
             expect(ex.message).to.equal(message);
-            expect(ex.cause).to.equal(error);
+            expect(ex.cause).to.equal(null);
+            expect(ex.source).to.equal(error);
 
             unsubscribe();
             done();

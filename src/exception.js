@@ -48,10 +48,13 @@ export class Exception extends Error {
             return error;
         }
         if (error instanceof Error) {
-            const errors = error.errors;
-            const ex = new constructor(error.message, options);
-            ex.stack = error.stack;
-            ex.cause = errors ? (errors.length === 1 ? errors[0] : errors) : error;
+            const { message, stack, errors } = error;
+            const ex = new constructor(message, options);
+            ex.stack = stack;
+            if (errors) {
+                ex.cause = errors.slice();
+            }
+            ex.source = error;
             return ex;
         }
         return new constructor(String(error), options);

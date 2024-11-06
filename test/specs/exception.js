@@ -148,21 +148,24 @@ describe('Exception', () => {
         expect(ex1.name).to.equal('Exception');
         expect(ex1.message).to.equal(error.message);
         expect(ex1.stack).to.equal(error.stack);
-        expect(ex1.cause).to.equal(error);
+        expect(ex1.cause).to.equal(null);
+        expect(ex1.source).to.equal(error);
 
         const ex2 = TestError.from(error);
         expect(ex2).to.be.an.instanceof(TestError);
         expect(ex2.name).to.equal('TestError');
         expect(ex2.message).to.equal(error.message);
         expect(ex2.stack).to.equal(error.stack);
-        expect(ex2.cause).to.equal(error);
+        expect(ex2.cause).to.equal(null);
+        expect(ex2.source).to.equal(error);
 
         const ex3 = SubTestError.from(error);
         expect(ex3).to.be.an.instanceof(SubTestError);
         expect(ex3.name).to.equal('SubTestError');
         expect(ex3.message).to.equal(error.message);
         expect(ex3.stack).to.equal(error.stack);
-        expect(ex3.cause).to.equal(error);
+        expect(ex3.cause).to.equal(null);
+        expect(ex3.source).to.equal(error);
     });
 
     it('should convert a string into an Exception', () => {
@@ -184,18 +187,18 @@ describe('Exception', () => {
     it('should not convert an object if it already is an Exception', () => {
         const ex1 = new Exception('error message');
         expect(Exception.from(ex1)).to.equal(ex1);
-        expect(ex1.cause).to.not.equal(ex1);
+        expect(ex1.cause).to.equal(null);
 
         const ex2 = new TestError('error message');
         expect(TestError.from(ex2)).to.equal(ex2);
         expect(Exception.from(ex2)).to.equal(ex2);
-        expect(ex2.cause).to.not.equal(ex2);
+        expect(ex2.cause).to.equal(null);
 
         const ex3 = new SubTestError('error message');
         expect(SubTestError.from(ex3)).to.equal(ex3);
         expect(TestError.from(ex3)).to.equal(ex3);
         expect(Exception.from(ex3)).to.equal(ex3);
-        expect(ex3.cause).to.not.equal(ex3);
+        expect(ex3.cause).to.equal(null);
     });
 
     it('should convert a thrown error string into an Exception', () => {
@@ -231,7 +234,8 @@ describe('Exception', () => {
         expect(ex.name).to.equal('Exception');
         expect(ex.message).to.equal(error.message);
         expect(ex.stack).to.equal(error.stack);
-        expect(ex.cause).to.equal(error);
+        expect(ex.cause).to.equal(null);
+        expect(ex.source).to.equal(error);
     });
 
     it('should convert a normal Error into an Exception with custom metadata', () => {
@@ -271,6 +275,7 @@ describe('Exception', () => {
             baz: 3
         });
 
+        expect(ex).to.equal(error);
         expect(ex.data).to.deep.equal({
             foo: 1,
             bar: 2,

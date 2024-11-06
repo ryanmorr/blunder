@@ -125,7 +125,8 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.cause).to.equal(error);
+            expect(err.cause).to.equal(null);
+            expect(err.source).to.equal(error);
             expect(err.data.event).to.equal(errorEvent);
 
             stop();
@@ -153,7 +154,8 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.cause).to.equal(error);
+            expect(err.cause).to.equal(null);
+            expect(err.source).to.equal(error);
             expect(err.data.event).to.equal(rejectionEvent);
             expect(err.data.event.reason).to.equal(error);
             expect(err.data.event.promise).to.equal(promise);
@@ -182,7 +184,8 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.cause).to.equal(error);
+            expect(err.cause).to.equal(null);
+            expect(err.source).to.equal(error);
             expect(err.data.event).to.equal(rejectionEvent);
             expect(err.data.event.reason).to.equal(error);
             expect(err.data.event.promise).to.equal(promise);
@@ -210,7 +213,6 @@ describe('monitor', () => {
         unsubscribe = subscribe((err) => {
             expect(err).to.be.an.instanceof(Exception);
             expect(err.message).to.equal(message);
-            expect(err.cause).to.equal(null);
             expect(err.data.event).to.equal(rejectionEvent);
             expect(err.data.event.reason).to.equal(message);
             expect(err.data.event.promise).to.equal(promise);
@@ -225,35 +227,7 @@ describe('monitor', () => {
         window.dispatchEvent(rejectionEvent);
     });
 
-    it('should dispatch an AggregateError with a single error', (done) => {
-        let stop, unsubscribe;
-
-        const error = new Error();
-        const aggregateError = new AggregateError([error]);
-        const promise = Promise.reject(error);
-        const rejectionEvent = new PromiseRejectionEvent('unhandledrejection', {
-            reason: aggregateError,
-            promise
-        });
-
-        unsubscribe = subscribe((err) => {
-            expect(err).to.be.an.instanceof(Exception);
-            expect(err.cause).to.equal(error);
-            expect(err.data.event).to.be.an.instanceof(PromiseRejectionEvent);
-            expect(err.data.event.reason).to.be.an.instanceof(AggregateError);
-            expect(err.data.event.reason.errors[0]).to.equal(error);
-
-            stop();
-            unsubscribe();
-            done();
-        });
-
-        stop = monitor();
-
-        window.dispatchEvent(rejectionEvent);
-    });
-
-    it('should dispatch an AggregateError with multiple errors', (done) => {
+    it('should dispatch an AggregateError', (done) => {
         let stop, unsubscribe;
 
         const error1 = new Error();
@@ -276,7 +250,7 @@ describe('monitor', () => {
             expect(err.cause).to.include(error3);
             expect(err.data.event).to.be.an.instanceof(PromiseRejectionEvent);
             expect(err.data.event.reason).to.be.an.instanceof(AggregateError);
-            expect(err.data.event.reason.errors).to.equal(err.cause);
+            expect(err.data.event.reason.errors).to.deep.equal(err.cause);
 
             stop();
             unsubscribe();

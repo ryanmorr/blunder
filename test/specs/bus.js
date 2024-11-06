@@ -92,13 +92,14 @@ describe('bus', () => {
         const unsubscribe = subscribe(callback);
         
         const message = 'An error occurred';
-        const err = new Error(message);
-        expect(dispatch(err)).to.be.an.instanceof(Exception);
+        const error = new Error(message);
+        expect(dispatch(error)).to.be.an.instanceof(Exception);
         
-        const error = callback.args[0][0];
-        expect(error).to.be.an.instanceof(Exception);
-        expect(error.message).to.equal(message);
-        expect(error.cause).to.equal(err);
+        const ex = callback.args[0][0];
+        expect(ex).to.be.an.instanceof(Exception);
+        expect(ex.message).to.equal(message);
+        expect(ex.cause).to.equal(null);
+        expect(ex.source).to.equal(error);
 
         unsubscribe();
     });
