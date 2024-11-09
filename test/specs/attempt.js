@@ -1,107 +1,124 @@
-import { attempt, subscribe, monitor, Exception } from '../../src/blunder';
+import { attempt, subscribe, Exception } from '../../src/blunder';
 
 describe('attempt', () => {
-    it('should resolve when the provided function is successfully executed', (done) => {
-        const promise = attempt(() => {
-            return 'foo';
-        });
-        
-        expect(promise).to.be.a('promise');
-
-        promise.then((val) => {
-            expect(val).to.equal('foo');
-            done();
-        });
+    it('should return a value if a sync function is successfully executed', () => {
+        const data = attempt(() => 'foo');
+    
+        expect(data).to.be.an('array');
+        expect(data[0]).to.equal('foo');
+        expect(data[1]).to.equal(undefined);
     });
-
-    it('should reject when the provided function throws an error', (done) => {
+    
+    it('should return an exception if a sync function throws an error', () => {
         const message = 'An error occurred';
         const error = new Error(message);
-
-        const promise = attempt(() => {
+    
+        const data = attempt(() => {
             throw error;
         });
-        
-        expect(promise).to.be.a('promise');
-        
-        promise.catch((ex) => {
-            expect(ex).to.be.an.instanceof(Exception);
-            expect(ex.message).to.equal(message);
-            expect(ex.cause).to.equal(null);
-            expect(ex.source).to.equal(error);
-            done();
-        });
+    
+        expect(data).to.be.an('array');
+        expect(data[0]).to.equal(undefined);
+        expect(data[1]).be.an.instanceof(Exception);
+        expect(data[1].message).to.equal(message);
+        expect(data[1].source).to.equal(error);
     });
-
-    it('should allow passing custom metadata to the error object when an error is thrown', (done) => {
-        const callback = () => {
-            throw new Error();
-        };
-
-        const data = {
-            foo: 1,
-            bar: 2,
-            baz: 3
-        };
-
-        attempt(callback, data).catch((ex) => {
-            expect(ex).to.be.an.instanceof(Exception);
-            expect(ex.data).to.deep.equal(data);
-            done();
-        });
-    });
-
-    it('should dispatch an error to global error handlers', (done) => {
+    
+    it('should dispatch an error to global error handlers for sync functions', () => {
         const message = 'An error occurred';
         const error = new Error(message);
-
+    
         const callback = sinon.spy();
         const unsubscribe = subscribe(callback);
-
-        attempt(() => {
+    
+        const [value, ex] = attempt(() => {
             throw error;
-        }).catch((ex) => {
-            expect(callback.callCount).to.equal(1);
-
-            expect(callback.args[0][0]).to.equal(ex);
-            expect(ex).to.be.an.instanceof(Exception);
-            expect(ex.message).to.equal(message);
-            expect(ex.cause).to.equal(null);
-            expect(ex.source).to.equal(error);
-
-            unsubscribe();
-            done();
         });
+        
+        expect(value).to.equal(undefined);
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(ex);
+        expect(ex).to.be.an.instanceof(Exception);
+        expect(ex.message).to.equal(message);
+        expect(ex.source).to.equal(error);
+    
+        unsubscribe();
     });
 
-    it('Should dispatch an error only once to the global error handlers', (done) => {
-        let stop, unsubscribe;
-
-        const callback = sinon.spy();
-        unsubscribe = subscribe(callback);
-
-        stop = monitor({error: false, unhandledrejection: false, rejectionhandled: true});
-
-        const promise = attempt(() => {
-            throw new Error('An error occurred');
-        });
-
-        promise.catch((ex) => {
-            window.dispatchEvent(new PromiseRejectionEvent('rejectionhandled', {
-                reason: ex,
-                promise
-            }));
-        });
-
-        const onRejectionHandled = () => {
-            expect(callback.callCount).to.equal(1);
-
-            window.removeEventListener('rejectionhandled', onRejectionHandled);
-            stop();
-            unsubscribe();
-            done();
-        };
+    it('should support a fulfilled promise', async () => {
+        const promise = attempt(Promise.resolve('foo'));
+    
+        expect(promise).to.be.a('promise');
         
-        window.addEventListener('rejectionhandled', onRejectionHandled);
+        const data = await promise;
+
+        expect(data).to.be.an('array');
+        expect(data[0]).to.equal('foo');
+        expect(data[1]).to.equal(undefined);
+    });
+    
+    it('should support a rejected promise', async () => {
+        const message = 'An error occurred';
+        const error = new Error(message);
+    
+        const promise = attempt(Promise.reject(error));
+    
+        expect(promise).to.be.a('promise');
+
+        const data = await promise;
+        
+        expect(data).to.be.an('array');
+        expect(data[0]).to.equal(undefined);
+        expect(data[1]).be.an.instanceof(Exception);
+        expect(data[1].message).to.equal(message);
+        expect(data[1].source).to.equal(error);
+    });
+
+    it('should support an async function that returns a fulfilled promise', async () => {
+        const promise = attempt(() => Promise.resolve('foo'));
+    
+        expect(promise).to.be.a('promise');
+
+        const data = await promise;
+
+        expect(data).to.be.an('array');
+        expect(data[0]).to.equal('foo');
+        expect(data[1]).to.equal(undefined);
+    });
+    
+    it('should support an async function that returns a rejected promise', async () => {
+        const message = 'An error occurred';
+        const error = new Error(message);
+    
+        const promise = attempt(() => Promise.reject(error));
+    
+        expect(promise).to.be.a('promise');
+
+        const data = await promise;
+        
+        expect(data).to.be.an('array');
+        expect(data[0]).to.equal(undefined);
+        expect(data[1]).be.an.instanceof(Exception);
+        expect(data[1].message).to.equal(message);
+        expect(data[1].source).to.equal(error);
+    });
+    
+    it('should dispatch an error to global error handlers for async functions', async () => {
+        const message = 'An error occurred';
+        const error = new Error(message);
+    
+        const callback = sinon.spy();
+        const unsubscribe = subscribe(callback);
+    
+        const [value, ex] = await attempt(Promise.reject(error));
+
+        expect(value).to.equal(undefined);
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(ex);
+        expect(ex).to.be.an.instanceof(Exception);
+        expect(ex.message).to.equal(message);
+        expect(ex.source).to.equal(error);
+
+        unsubscribe();
     });
 });

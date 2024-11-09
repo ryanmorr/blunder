@@ -1,14 +1,31 @@
-import { Exception } from './exception';
 import { dispatch } from './bus';
 
+function fail(error) {
+    return [undefined, error];
+}
+
+function pass(result) {
+    return [result, undefined];
+}
+    
+function handlePromise(promise, data) {
+    return promise.then(
+        (result) => pass(result),
+        (error) => fail(dispatch(error, data))
+    );
+}
+
 export function attempt(fn, data) {
-    const promise = new Promise((resolve, reject) => {
-        try {
-            resolve(fn());
-        } catch(e) {
-            reject(Exception.from(e, data));
+    if (fn instanceof Promise) {
+        return handlePromise(fn, data);
+    }
+    try {
+        const result = fn();
+        if (result instanceof Promise) {
+            return handlePromise(result, data);
         }
-    });
-    promise.catch(dispatch);
-    return promise;
+        return pass(result);
+    } catch(error) {
+        return fail(dispatch(error, data));
+    }
 }
