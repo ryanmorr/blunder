@@ -14,11 +14,9 @@ describe('serialize', () => {
         expect(serialize(false)).to.equal(false);
     });
     
-    it('should serialize dates', () => {
+    it('should not serialize dates', () => {
         const date = new Date();
-        const dateString = date.toISOString();
-
-        expect(serialize(date)).to.equal(dateString);
+        expect(serialize(date)).to.equal(date);
     });
 
     it('should serialize functions', () => {
@@ -47,7 +45,7 @@ describe('serialize', () => {
             true,
             '[Function: fn]',
             null,
-            date.toISOString(),
+            date,
             undefined
         ]);
     });
@@ -70,7 +68,7 @@ describe('serialize', () => {
             boolean: true,
             fn: '[Function: fn]',
             nil: null,
-            date: date.toISOString(),
+            date: date,
             undefined: undefined
         });
     });
@@ -85,16 +83,6 @@ describe('serialize', () => {
         });
 
         expect(serialize(obj)).to.deep.equal({foo: 1, bar: 2});
-    });
-
-    it('should use an object\'s toJSON method when it exists', () => {
-        const obj = {
-            toJSON() {
-                return 'foo';
-            }
-        };
-
-        expect(serialize(obj)).to.equal('foo');
     });
 
     it('should discard unwanted objects', () => {
@@ -135,7 +123,7 @@ describe('serialize', () => {
                 promise: undefined,
                 c: {
                     d: [
-                        date.toISOString(),
+                        date,
                         undefined,
                         [
                             '[Function: fn]'
@@ -203,6 +191,22 @@ describe('serialize', () => {
         });
     });
 
+    it('should serialize the Error cause property', () => {
+        const error1 = new Error('error message');
+        const error2 = new Error('error message 2', {cause: error1});
+
+        expect(serialize(error2)).to.deep.equal({
+            name: error2.name,
+            message: error2.message,
+            stack: error2.stack,
+            cause: {
+                name: error1.name,
+                message: error1.message,
+                stack: error1.stack
+            }
+        });
+    });
+
     it('should serialize the Exception cause property', () => {
         const error = new Error('error message');
         const ex = new Exception('error message 2', {cause: error});
@@ -252,6 +256,36 @@ describe('serialize', () => {
         });
     });
 
+    it('should serialize an Error/Exception chain via the cause property', () => {
+        const error1 = new Error('error message 1');
+        const ex1 = new Exception('error message 2', {cause: error1});
+        const error2 = new Error('error message 3', {cause: ex1});
+        const ex2 = new Exception('error message 4', {cause: error2});
+
+        expect(serialize(ex2)).to.deep.equal({
+            name: ex2.name,
+            message: ex2.message,
+            stack: ex2.stack,
+            cause: {
+                name: error2.name,
+                message: error2.message,
+                stack: error2.stack,
+                cause: {
+                    name: ex1.name,
+                    message: ex1.message,
+                    stack: ex1.stack,
+                    cause: {
+                        name: error1.name,
+                        message: error1.message,
+                        stack: error1.stack
+                    },
+                    data: {}
+                }
+            },
+            data: {}
+        });
+    });
+
     it('should serialize Exception metadata', () => {
         const fn = function() {};
         const date = new Date();
@@ -277,7 +311,7 @@ describe('serialize', () => {
                 num: 123,
                 bool: false,
                 fn: '[Function: fn]',
-                date: date.toISOString(),
+                date: date,
                 object: {
                     array: [null, 100]
                 }
@@ -325,7 +359,27 @@ describe('serialize', () => {
         });
     });
 
-    it('should avoid circular in Exception cause property', () => {
+    it('should avoid circular reference in Error cause property', () => {
+        const error1 = new Error('error message 1');
+        const error2 = new Error('error message 2'); 
+
+        error1.cause = error2;
+        error2.cause = error1;
+
+        expect(serialize(error1)).to.deep.equal({
+            name: error1.name,
+            message: error1.message,
+            stack: error1.stack,
+            cause: {
+                name: error2.name,
+                message: error2.message,
+                stack: error2.stack,
+                cause: '[Circular]'
+            }
+        });
+    });
+
+    it('should avoid circular references in Exception cause property', () => {
         const ex1 = new Exception('error message 1');
         const ex2 = new Exception('error message 2'); 
 
@@ -347,7 +401,7 @@ describe('serialize', () => {
         });
     });
 
-    it('should avoid circular in Exception metadata', () => {
+    it('should avoid circular references in Exception metadata', () => {
         const object = {a: true};
         object.b = object;
         object.c = ['foo', object, 'bar'];
@@ -366,6 +420,66 @@ describe('serialize', () => {
                     a: true,
                     b: '[Circular]',
                     c: ['foo', '[Circular]', 'bar']
+                }
+            }
+        });
+    });
+
+    it('should avoid circular references in customized serialization', () => {
+        let object;
+
+        class FooException extends Exception {
+            serializable() {
+                object = {};
+                object.a = object;
+                object.b = {
+                    c: 'foo',
+                    d: object
+                };
+                return object;
+            }
+        }
+
+        const ex = new FooException();
+
+        expect(ex.serializable()).to.equal(object);
+        expect(ex.toJSON()).to.deep.equal({
+            a: '[Circular]',
+            b: {
+                c: 'foo',
+                d: '[Circular]'
+            }
+        });
+    });
+
+    it('should allow multiple references to same object provided it is not circular', () => {
+        const error = new Error();
+
+        const ex = new Exception('error message', {
+            cause: error,
+            error,
+            originalError: error
+        });
+
+        expect(serialize(ex)).to.deep.equal({
+            name: ex.name,
+            message: ex.message,
+            stack: ex.stack,
+            cause: {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            },
+            data: {
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                },
+                originalError: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
                 }
             }
         });

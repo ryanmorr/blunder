@@ -2,48 +2,69 @@ function getType(value) {
     return {}.toString.call(value).slice(8, -1);
 }
 
-function serializeValue(value, seen) {
-    if (typeof value?.toJSON === 'function' && !(value instanceof Error)) {
-        value = value.toJSON();
+function serializeException(ex, seen) {
+    seen.add(ex);
+    const value = serialize(ex.serializable(), seen);
+    seen.delete(ex);
+    return value;
+}
+
+function serializeError(error, seen) {
+    seen.add(error);
+    const value = {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+    };
+    if ('cause' in error) {
+        value.cause = serialize(error.cause, seen);
     }
+    seen.delete(error);
+    return value;
+}
+
+function serializeArray(array, seen) {
+    seen.add(array);
+    const value = array.map((item) => serialize(item, seen));
+    seen.delete(array);
+    return value;
+}
+
+function serializeObject(object, seen) {
+    seen.add(object);
+    const value = {};
+    for (const [key, item] of Object.entries(object)) {
+        value[key] = serialize(item, seen);
+    }
+    seen.delete(object);
+    return value;
+}
+
+export function serialize(value, seen = new WeakSet()) {
     if (value == null) {
         return value;
     }
+    if (seen.has(value)) {
+        return '[Circular]';
+    }
     const type = getType(value);
-    if (type === 'String' || type === 'Number' || type === 'Boolean') {
+    if (type === 'String' || type === 'Number' || type === 'Boolean' || type === 'Date') {
         return value;
     }
     if (type === 'Function') {
         return `[Function: ${value.name || 'anonymous'}]`;
     }
-    if (seen.has(value)) {
-        return '[Circular]';
+    if (type === 'Array') {
+        return serializeArray(value, seen);
     }
-    let newValue;
-    seen.add(value);
+    if (type === 'Object') {
+        return serializeObject(value, seen);
+    }
     if (value instanceof Error) {
-        newValue = {
-            name: value.name,
-            message: value.message,
-            stack: value.stack
-        };
-        if ('cause' in value) {
-            newValue.cause = serializeValue(value.cause, seen);
+        if (typeof value.serializable === 'function') {
+            return serializeException(value, seen);
         }
-        if (value.data) {
-            newValue.data = serializeValue(value.data, seen);
-        }
-    } else if (type === 'Array' || type === 'Object') {
-        newValue = type === 'Array' ? [] : {};
-        for (const [key, val] of Object.entries(value)) {
-            newValue[key] = serializeValue(val, seen);
-        }
+        return serializeError(value, seen);
     }
-    seen.delete(value);
-    return newValue;
-}
-
-export function serialize(error) {
-    const seen = new WeakSet();
-    return serializeValue(error, seen);
+    return undefined;
 }

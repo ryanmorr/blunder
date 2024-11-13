@@ -113,6 +113,29 @@ describe('Exception', () => {
         expect(ex4.data).to.deep.equal({foo: 1, bar: 2, baz: 3});
     });
 
+    it('should return an object representation of the Exception instance', () => {
+        const error = new Error();
+        const fn = function() {};
+        const date = new Date();
+
+        const ex = new Exception('error message', {
+            cause: error,
+            fn,
+            date
+        });
+
+        expect(ex.serializable()).to.deep.equal({
+            name: ex.name,
+            message: ex.message,
+            stack: ex.stack,
+            cause: ex.cause,
+            data: {
+                fn,
+                date
+            }
+        });
+    });
+
     it('should serialize an Exception', () => {
         const error = new Error();
         const fn = function() {};
@@ -135,9 +158,22 @@ describe('Exception', () => {
             },
             data: {
                 fn: '[Function: fn]',
-                date: date.toISOString()
+                date: date
             }
         });
+    });
+
+    it('should allow an Exception subclass to customize how it is serialized', () => {
+        class FooException extends Exception {
+            serializable() {
+                return `${this.name}: ${this.message}`;
+            }
+        }
+
+        const ex = new FooException('error message');
+
+        expect(ex.serializable()).to.equal('FooException: error message');
+        expect(ex.toJSON()).to.equal('FooException: error message');
     });
 
     it('should convert a normal Error into an Exception', () => {

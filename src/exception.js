@@ -27,6 +27,16 @@ export class Exception extends Error {
         setProperty(this, 'data', data);
     }
 
+    serializable() {
+        return {
+            name: this.name,
+            message: this.message,
+            stack: this.stack,
+            cause: this.cause,
+            data: this.data
+        };
+    }
+
     toJSON() {
         return serialize(this);
     }
