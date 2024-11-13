@@ -121,4 +121,23 @@ describe('attempt', () => {
 
         unsubscribe();
     });
+
+    it('should support throwing, catching, and dispatching Exception subclasses', () => {
+        class MyException extends Exception {}
+        const ex = new MyException('error message');
+    
+        const callback = sinon.spy();
+        const unsubscribe = subscribe(callback);
+    
+        const [value, error] = attempt(() => {
+            throw ex;
+        });
+        
+        expect(value).to.equal(undefined);
+        expect(error).to.equal(ex);
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(ex);
+    
+        unsubscribe();
+    });
 });
