@@ -8,24 +8,24 @@ function pass(result) {
     return [result, undefined];
 }
     
-function handlePromise(promise, data) {
+function handlePromise(promise, options) {
     return promise.then(
         (result) => pass(result),
-        (error) => fail(dispatch(error, data))
+        (error) => fail(dispatch(error, options))
     );
 }
 
-export function attempt(fn, data) {
+export function attempt(fn, options) {
     if (fn instanceof Promise) {
-        return handlePromise(fn, data);
+        return handlePromise(fn, options);
     }
     try {
         const result = fn();
         if (result instanceof Promise) {
-            return handlePromise(result, data);
+            return handlePromise(result, options);
         }
         return pass(result);
     } catch(error) {
-        return fail(dispatch(error, data));
+        return fail(dispatch(error, options));
     }
 }
