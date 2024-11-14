@@ -274,6 +274,15 @@ describe('Exception', () => {
         expect(ex.source).to.equal(error);
     });
 
+    it('should merge cause from a normal Error into an Exception', () => {
+        const error1 = new Error();
+        const error2 = new Error('error message', {cause: error1});
+
+        const ex = Exception.from(error2);
+
+        expect(ex.cause).to.equal(error1);
+    });
+
     it('should convert a normal Error into an Exception with custom metadata', () => {
         const error = new Error('error message');
 
