@@ -1,7 +1,7 @@
 {
   "name": "@ryanmorr/blunder",
   "description": "A modern client-side JavaScript error handler",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "license": "Unlicense",
   "author": "Ryan Morr",
   "homepage": "https://github.com/ryanmorr/blunder",
@@ -15,8 +15,7 @@
     "error handling",
     "error monitoring",
     "error reporting",
-    "exceptions",
-    "stacktrace"
+    "exceptions"
   ],
   "type": "module",
   "main": "dist/cjs/blunder.js",
